@@ -829,7 +829,7 @@ body {
 
 .double-page-wrapper {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row; /* Thay đổi từ row-reverse sang row (Trái sang Phải) */
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -837,7 +837,7 @@ body {
     gap: 0;
     box-shadow: 0 10px 20px rgba(0,0,0,0.5);
     background: #000;
-    min-height: 60vh; /* Chống xẹp khung khi ảnh chưa tải xong */
+    min-height: 60vh;
 }
 
 .double-page-wrapper img {
@@ -872,3 +872,246 @@ body {
 
 .page-nav-left { left: 0; justify-content: flex-start; padding-left: 5%; }
 .page-nav-right { right: 0; justify-content: flex-end; padding-right: 5%; }
+
+/* Layout chế độ trang đôi: chrome trái, 2 trang khít chiều cao, không cuộn dọc */
+html:has(body.double-reading-mode) {
+    height: 100%;
+    overflow: hidden;
+}
+
+body.double-reading-mode {
+    display: grid;
+    grid-template-columns: 16.5rem minmax(0, 1fr);
+    grid-template-rows: 100dvh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+body.double-reading-mode > .navbar {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    z-index: 6;
+    width: 16.5rem;
+    max-width: 16.5rem;
+    padding: 0.75rem 0.85rem 0;
+    background: transparent !important;
+    box-shadow: none;
+}
+
+body.double-reading-mode > .navbar .container {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: none;
+    width: 100%;
+    padding: 0;
+    gap: 0.5rem;
+}
+
+body.double-reading-mode .navbar-brand {
+    font-size: 1.05rem;
+    margin-right: 0;
+}
+
+body.double-reading-mode .navbar-toggler {
+    display: none;
+}
+
+body.double-reading-mode .navbar-collapse {
+    display: flex !important;
+    width: 100%;
+}
+
+body.double-reading-mode #search-form {
+    width: 100%;
+    margin: 0 !important;
+}
+
+body.double-reading-mode #search-form .form-control {
+    min-width: 0;
+    padding: 0.4rem 0.6rem;
+}
+
+body.double-reading-mode #search-form .btn {
+    padding: 0.4rem 0.65rem;
+}
+
+body.double-reading-mode > .container.my-4 {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    display: grid;
+    grid-template-columns: 16.5rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    max-width: none;
+    width: 100%;
+    height: 100dvh;
+    margin: 0 !important;
+    padding: 0;
+    overflow: hidden;
+}
+
+body.double-reading-mode #manga-info {
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 16.5rem;
+    max-width: 16.5rem;
+    margin: 0 !important;
+    padding: 6.75rem 0.85rem 0.5rem;
+}
+
+body.double-reading-mode #manga-title {
+    font-size: 1.05rem;
+    line-height: 1.35;
+    margin: 0 !important;
+    word-break: break-word;
+}
+
+body.double-reading-mode #follow-manga-btn,
+body.double-reading-mode .follow-btn {
+    position: static;
+    right: auto;
+}
+
+body.double-reading-mode #chapter-navigation,
+body.double-reading-mode #chapter-navigation.nav-vertical,
+body.double-reading-mode #chapter-navigation.nav-horizontal {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    grid-column: 1;
+    grid-row: 2;
+    z-index: 5;
+    width: auto !important;
+    height: auto !important;
+    max-width: calc(16.5rem - 1rem);
+    margin: 0.5rem 0.5rem 0.75rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    border-radius: 13px;
+}
+
+body.double-reading-mode #chapter-navigation.nav-horizontal button {
+    width: 100%;
+    min-width: 0;
+}
+
+body.double-reading-mode #chapter-navigation.nav-horizontal .dropdown {
+    max-width: none;
+    width: 100%;
+}
+
+body.double-reading-mode #chapter-navigation.nav-horizontal .warmth-control .warmth-slider {
+    display: block;
+    width: 100px;
+    opacity: 1;
+}
+
+body.double-reading-mode #loading,
+body.double-reading-mode #error-message {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+    justify-self: center;
+    margin: 0;
+}
+
+body.double-reading-mode #manga-content {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    height: 100dvh;
+    max-height: 100dvh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: none;
+}
+
+body.double-reading-mode .double-page-container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    justify-content: stretch;
+    align-items: stretch;
+}
+
+body.double-reading-mode .double-page-wrapper {
+    flex: 0 0 auto;
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    min-height: 0;
+    min-width: 0;
+    background: #000;
+    box-shadow: none;
+    z-index: 1;
+}
+
+body.double-reading-mode .double-page-wrapper img.manga-page {
+    height: 100%;
+    width: auto;
+    max-height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    display: block;
+    touch-action: none;
+    transition: none;
+}
+
+body.double-reading-mode .page-nav-btn {
+    position: relative;
+    flex: 1 1 0;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    padding: 0;
+    opacity: 0;
+    font-size: 1.25rem;
+    z-index: 2;
+    justify-content: center;
+}
+
+body.double-reading-mode .page-nav-left,
+body.double-reading-mode .page-nav-right {
+    left: auto;
+    right: auto;
+    padding: 0;
+    justify-content: center;
+}
+
+body.double-reading-mode .page-nav-btn:hover:not(:disabled) {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.28);
+}
+
+body.double-reading-mode .page-nav-btn:disabled {
+    cursor: default;
+    pointer-events: none;
+    opacity: 0;
+}

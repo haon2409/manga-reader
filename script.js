@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadFollowedMangas();
     loadReadHistory();
+    restoreReadingMode();
     parseUrlParameters();
 
     if (elements.searchForm) {
@@ -275,15 +276,28 @@ function setupEventListeners() {
         }
     });
 
-    // Khôi phục chế độ đọc đã lưu
-    if(elements.readingModeSelect) {
-        elements.readingModeSelect.value = localStorage.getItem("readingMode") || "scroll";
+    if (elements.readingModeSelect) {
         elements.readingModeSelect.addEventListener("change", function(e) {
             localStorage.setItem("readingMode", e.target.value);
             currentDoublePageIndex = 0; // Đưa về trang đầu khi đổi chế độ
             renderPages();
         });
     }
+}
+
+function restoreReadingMode() {
+    if (!elements.readingModeSelect) return;
+    elements.readingModeSelect.value = localStorage.getItem("readingMode") || "scroll";
+    applyDoubleReadingLayout();
+}
+
+function applyDoubleReadingLayout(enabled) {
+    const mode = elements.readingModeSelect
+        ? elements.readingModeSelect.value
+        : "scroll";
+    const isEnabled =
+        enabled !== undefined ? enabled : mode === "double" && !!currentSlug;
+    document.body.classList.toggle("double-reading-mode", isEnabled);
 }
 
 async function loadMangaContent(slug) {
@@ -294,6 +308,7 @@ async function loadMangaContent(slug) {
         elements.mangaContent.style.display = "none";
         helpers.hideError();
         elements.chapterNavigation.style.display = "flex";
+        applyDoubleReadingLayout();
 
         currentSlug = slug;
 
@@ -592,6 +607,7 @@ function displayMangaPages(pages) {
 
 function renderPages() {
     const mode = elements.readingModeSelect ? elements.readingModeSelect.value : "scroll";
+    applyDoubleReadingLayout(mode === "double" && !!currentSlug);
     if (mode === "scroll") {
         displayMangaPages(currentChapterPages);
     } else {
@@ -621,20 +637,19 @@ function displayDoublePages() {
     const wrapper = document.createElement("div");
     wrapper.className = "double-page-wrapper";
 
-    // Render trang trái (Trang thứ nhất trong cặp)
-    if (currentChapterPages[currentDoublePageIndex + 1]) {
-        const img2 = document.createElement("img");
-        img2.src = currentChapterPages[currentDoublePageIndex + 1].url;
-        img2.className = "manga-page";
-        wrapper.appendChild(img2);
+    // Trang trái: trang hiện tại, trang phải: trang kế tiếp
+    if (currentChapterPages[currentDoublePageIndex]) {
+        const imgLeft = document.createElement("img");
+        imgLeft.src = currentChapterPages[currentDoublePageIndex].url;
+        imgLeft.className = "manga-page";
+        wrapper.appendChild(imgLeft);
     }
 
-    // Render trang phải (Trang thứ hai trong cặp)
-    if (currentChapterPages[currentDoublePageIndex]) {
-        const img1 = document.createElement("img");
-        img1.src = currentChapterPages[currentDoublePageIndex].url;
-        img1.className = "manga-page";
-        wrapper.appendChild(img1);
+    if (currentChapterPages[currentDoublePageIndex + 1]) {
+        const imgRight = document.createElement("img");
+        imgRight.src = currentChapterPages[currentDoublePageIndex + 1].url;
+        imgRight.className = "manga-page";
+        wrapper.appendChild(imgRight);
     }
 
     // Nút lùi trang
@@ -646,7 +661,6 @@ function displayDoublePages() {
         if (currentDoublePageIndex >= 2) {
             currentDoublePageIndex -= 2;
             renderPages();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (currentChapterIndex > 0) {
             openDoublePageAtEnd = true;
             elements.prevChapterBtn.click();
@@ -662,18 +676,19 @@ function displayDoublePages() {
         if (currentDoublePageIndex + 2 < currentChapterPages.length) {
             currentDoublePageIndex += 2;
             renderPages();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (currentChapterIndex < chapters.length - 1) {
             elements.nextChapterBtn.click();
         }
     };
 
-    // Ẩn nút nếu không còn đường lùi/tiến
+    // Giữ nút trong layout (gutter) nhưng vô hiệu khi hết đường lùi/tiến
     if (currentDoublePageIndex === 0 && currentChapterIndex <= 0) {
-        btnPrev.style.display = 'none';
+        btnPrev.disabled = true;
+        btnPrev.setAttribute("aria-hidden", "true");
     }
     if (currentDoublePageIndex + 2 >= currentChapterPages.length && currentChapterIndex >= chapters.length - 1) {
-        btnNext.style.display = 'none';
+        btnNext.disabled = true;
+        btnNext.setAttribute("aria-hidden", "true");
     }
 
     container.appendChild(btnPrev);
@@ -884,6 +899,7 @@ function loadReadHistory() {
 
 async function showEmptyState(message = "No manga content to display") {
     helpers.showLoading(false);
+    applyDoubleReadingLayout(false);
     elements.mangaContent.style.display = "block";
     elements.chapterNavigation.style.display = "none";
     elements.followMangaBtn.style.display = "none";
@@ -1054,6 +1070,7 @@ async function handleSearchResults(keyword) {
     }
 
     elements.chapterNavigation.style.display = "none";
+    applyDoubleReadingLayout(false);
     elements.mangaTitle.textContent = `Kết quả tìm kiếm: "${keyword}"`;
     elements.followMangaBtn.style.display = "none";
 
