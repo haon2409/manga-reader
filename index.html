@@ -43,10 +43,16 @@
                 </button>
 
                 <div class="reading-mode-control mx-1">
-                    <select id="reading-mode-select" class="form-select form-select-sm bg-secondary text-white border-0" style="width: auto; padding: 2px 24px 2px 8px; font-size: 0.75rem;">
-                        <option value="scroll">Cuộn</option>
-                        <option value="double">Trang đôi</option>
-                    </select>
+                    <div class="segmented-control">
+                        <button type="button" class="segment active" data-mode="scroll">
+                            <i class="fas fa-arrows-alt-v"></i>
+                            <span>Cuộn</span>
+                        </button>
+                        <button type="button" class="segment" data-mode="double">
+                            <i class="fas fa-book-open"></i>
+                            <span>Trang đôi</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="warmth-control mx-1">

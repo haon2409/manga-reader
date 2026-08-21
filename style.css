@@ -968,3 +968,100 @@ body.double-reading-mode .page-nav-btn:disabled {
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     }
 }
+
+/* Segmented Control - Reading Mode */
+.segmented-control {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.segmented-control .segment {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 5px 11px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.segmented-control .segment i {
+    font-size: 0.78rem;
+}
+
+.segmented-control .segment:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.segmented-control .segment.active {
+    background: var(--apple-primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.4);
+    font-weight: 600;
+}
+
+/* Responsive nhỏ hơn trên mobile */
+@media (max-width: 768px) {
+    .segmented-control .segment span {
+        display: none; /* chỉ hiện icon trên mobile */
+    }
+    .segmented-control .segment {
+        padding: 5px 9px;
+    }
+}
+
+/* Khi ở chế độ trang đôi (sidebar hẹp) → chuyển thành cột gọn */
+body.double-reading-mode .segmented-control {
+    flex-direction: column;
+    width: 100%;
+    gap: 3px;
+}
+
+body.double-reading-mode .segmented-control .segment {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 7px 10px;
+}
+
+/* ===== Warmth control - sửa méo ở chế độ trang đôi ===== */
+body.double-reading-mode .warmth-control {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    margin: 4px 0;
+}
+
+body.double-reading-mode .warmth-control .warmth-slider {
+    display: block !important;
+    width: 100% !important;
+    max-width: 110px;
+    opacity: 1 !important;
+    flex: 1;
+}
+
+body.double-reading-mode .warmth-toggle {
+    flex-shrink: 0;
+}
+
+/* Đảm bảo toàn bộ control trong sidebar căn đều */
+body.double-reading-mode #chapter-navigation {
+    gap: 6px;
+    padding: 8px !important;
+}
+
+body.double-reading-mode .reading-mode-control {
+    width: 100%;
+    margin: 0 !important;
+}

@@ -29,7 +29,6 @@ const elements = {
     errorText: document.getElementById("error-text"),
     chapterDropdown: document.getElementById("chapterDropdown"),
     chapterCount: document.getElementById("chapter-count"),
-    readingModeSelect: document.getElementById("reading-mode-select"),
 };
 
 // Helpers
@@ -74,6 +73,8 @@ const helpers = {
     hideError: () => {
         elements.errorMessage.style.display = "none";
     },
+
+    getReadingMode: () => localStorage.getItem("readingMode") || "scroll",
 };
 
 // Init
@@ -175,9 +176,8 @@ function setupEventListeners() {
         }
     });
 
-    elements.toggleNavPositionBtn.addEventListener("click", function (e) {
+    elements.toggleNavPositionBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        // Không cho toggle khi đang ở chế độ trang đôi
         if (document.body.classList.contains("double-reading-mode")) return;
         toggleNavPosition();
     });
@@ -185,7 +185,7 @@ function setupEventListeners() {
     loadNavPositionFromStorage();
 
     document.addEventListener("keydown", (e) => {
-        const mode = elements.readingModeSelect?.value || "scroll";
+        const mode = helpers.getReadingMode();
         if (mode === "double") {
             if (e.key === "ArrowLeft") {
                 const navLeft = document.querySelector(".page-nav-left");
@@ -236,25 +236,32 @@ function setupEventListeners() {
         }
     });
 
-    if (elements.readingModeSelect) {
-        elements.readingModeSelect.addEventListener("change", (e) => {
-            localStorage.setItem("readingMode", e.target.value);
+    // Segmented control - Reading Mode
+    document.querySelectorAll(".segmented-control .segment").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const mode = btn.dataset.mode;
+
+            document.querySelectorAll(".segmented-control .segment")
+                .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            localStorage.setItem("readingMode", mode);
             currentDoublePageIndex = 0;
             renderPages();
         });
-    }
+    });
 }
 
 function restoreReadingMode() {
-    if (!elements.readingModeSelect) return;
-    elements.readingModeSelect.value = localStorage.getItem("readingMode") || "scroll";
+    const saved = helpers.getReadingMode();
+    document.querySelectorAll(".segmented-control .segment").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.mode === saved);
+    });
     applyDoubleReadingLayout();
 }
 
 function applyDoubleReadingLayout(enabled) {
-    const mode = elements.readingModeSelect
-        ? elements.readingModeSelect.value
-        : "scroll";
+    const mode = helpers.getReadingMode();
     const isEnabled =
         enabled !== undefined ? enabled : mode === "double" && !!currentSlug;
 
@@ -439,7 +446,7 @@ async function fetchChapterContent(slug, chapterId) {
     }));
 
     currentChapterPages = pages;
-    const readingMode = elements.readingModeSelect ? elements.readingModeSelect.value : "scroll";
+    const readingMode = helpers.getReadingMode();
     if (openDoublePageAtEnd && readingMode === "double") {
         currentDoublePageIndex = Math.max(0, pages.length - 2);
     } else {
@@ -494,7 +501,7 @@ function displayMangaPages(pages) {
 }
 
 function renderPages() {
-    const mode = elements.readingModeSelect ? elements.readingModeSelect.value : "scroll";
+    const mode = helpers.getReadingMode();
     applyDoubleReadingLayout(mode === "double" && !!currentSlug);
     if (mode === "scroll") {
         displayMangaPages(currentChapterPages);
