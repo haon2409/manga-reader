@@ -32,13 +32,11 @@ const elements = {
     readingModeSelect: document.getElementById("reading-mode-select"),
 };
 
-// Helper functions
+// Helpers
 const helpers = {
     getBasePath: () => {
         const path = window.location.pathname;
-        const segments = path
-            .split("/")
-            .filter((segment) => segment.length > 0);
+        const segments = path.split("/").filter((s) => s.length > 0);
         return segments[0] === "manga-reader" ? "/manga-reader/" : "./";
     },
 
@@ -53,14 +51,13 @@ const helpers = {
     updateFollowButton: (slug) => {
         const isFollowed = followedMangas.some((m) => m.slug === slug);
         const buttons = document.querySelectorAll(
-            `.follow-btn[data-slug="${slug}"], #follow-manga-btn[data-slug="${slug}"]`,
+            `.follow-btn[data-slug="${slug}"], #follow-manga-btn[data-slug="${slug}"]`
         );
-
         buttons.forEach((button) => {
             button.classList.toggle("followed", isFollowed);
             button.innerHTML = isFollowed
-                ? '<i class="fas fa-star"></i>'  // Ngôi sao đầy vàng khi followed
-                : '<i class="far fa-star"></i>'; // Ngôi sao rỗng trắng khi chưa follow
+                ? '<i class="fas fa-star"></i>'
+                : '<i class="far fa-star"></i>';
         });
     },
 
@@ -79,12 +76,10 @@ const helpers = {
     },
 };
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", function () {
+// Init
+document.addEventListener("DOMContentLoaded", () => {
     const navbarBrand = document.querySelector(".navbar-brand");
-    if (navbarBrand) {
-        navbarBrand.href = helpers.getBasePath();
-    }
+    if (navbarBrand) navbarBrand.href = helpers.getBasePath();
 
     loadFollowedMangas();
     loadReadHistory();
@@ -92,12 +87,10 @@ document.addEventListener("DOMContentLoaded", function () {
     parseUrlParameters();
 
     if (elements.searchForm) {
-        elements.searchForm.addEventListener("submit", function (e) {
+        elements.searchForm.addEventListener("submit", (e) => {
             e.preventDefault();
             const keyword = elements.searchInput.value.trim();
-            if (keyword) {
-                handleSearchResults(keyword);
-            }
+            if (keyword) handleSearchResults(keyword);
         });
     }
 
@@ -105,37 +98,30 @@ document.addEventListener("DOMContentLoaded", function () {
     setupWarmthSlider();
 });
 
-// Touch event handlers
-document.addEventListener("touchstart", function (e) {
+// Touch swipe
+document.addEventListener("touchstart", (e) => {
     window.touchStartX = e.touches[0].clientX;
     window.touchStartTime = Date.now();
 });
 
 document.addEventListener(
     "touchmove",
-    function (e) {
-        if (
-            window.touchStartX < 20 ||
-            window.touchStartX > window.innerWidth - 20
-        ) {
+    (e) => {
+        if (window.touchStartX < 20 || window.touchStartX > window.innerWidth - 20) {
             e.preventDefault();
         }
     },
-    { passive: false },
+    { passive: false }
 );
 
-document.addEventListener("touchend", function (e) {
+document.addEventListener("touchend", (e) => {
     const touchEndX = e.changedTouches[0].clientX;
     const deltaX = touchEndX - window.touchStartX;
     const duration = Date.now() - window.touchStartTime;
 
     if (window.touchStartX < 20 && deltaX > 50 && duration < 500) {
         elements.prevChapterBtn.click();
-    } else if (
-        window.touchStartX > window.innerWidth - 20 &&
-        deltaX < -50 &&
-        duration < 500
-    ) {
+    } else if (window.touchStartX > window.innerWidth - 20 && deltaX < -50 && duration < 500) {
         elements.nextChapterBtn.click();
     }
 });
@@ -143,23 +129,19 @@ document.addEventListener("touchend", function (e) {
 function parseUrlParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     currentSlug = urlParams.get("slug") || "";
-    currentChapterId = urlParams.get("chapter_id") || ""; // Gán trực tiếp vào currentChapterId
+    currentChapterId = urlParams.get("chapter_id") || "";
     isNewest = urlParams.get("newest") === "true";
-
-    console.log("URL params:", { currentSlug, currentChapterId, isNewest }); // Log giữ nguyên
 
     if (currentSlug) {
         const formattedSlug = currentSlug
             .split("-")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(" ");
-        elements.mangaTitle.textContent = formattedSlug; // Sửa lỗi cú pháp: gán formattedSlug
-
+        elements.mangaTitle.textContent = formattedSlug;
         elements.followMangaBtn.style.display = "inline-block";
         elements.followMangaBtn.setAttribute("data-slug", currentSlug);
-
         helpers.updateFollowButton(currentSlug);
-        loadMangaContent(currentSlug); // Chỉ truyền slug
+        loadMangaContent(currentSlug);
     } else {
         elements.followMangaBtn.style.display = "none";
         showEmptyState();
@@ -167,67 +149,51 @@ function parseUrlParameters() {
 }
 
 function toggleFollowManga(slug, title, chapterId = null) {
-    const mangaIndex = followedMangas.findIndex((manga) => manga.slug === slug);
-
-    if (mangaIndex === -1) {
+    const idx = followedMangas.findIndex((m) => m.slug === slug);
+    if (idx === -1) {
         followedMangas.push({ slug, title, chapterId });
     } else {
-        followedMangas.splice(mangaIndex, 1);
+        followedMangas.splice(idx, 1);
     }
-
     saveFollowedMangas();
     helpers.updateFollowButton(slug);
-
-    if (!currentSlug) {
-        showEmptyState();
-    }
+    if (!currentSlug) showEmptyState();
 }
 
 function setupEventListeners() {
-    // Navigation buttons
-    elements.prevChapterBtn.addEventListener("click", function (e) {
+    elements.prevChapterBtn.addEventListener("click", (e) => {
         e.preventDefault();
         if (currentChapterIndex > 0) {
             navigateToChapter(chapters[currentChapterIndex - 1].id);
         }
     });
 
-    elements.nextChapterBtn.addEventListener("click", function (e) {
+    elements.nextChapterBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        if (
-            currentChapterIndex < chapters.length - 1 &&
-            currentChapterIndex !== -1
-        ) {
+        if (currentChapterIndex < chapters.length - 1 && currentChapterIndex !== -1) {
             navigateToChapter(chapters[currentChapterIndex + 1].id);
         }
     });
 
-    // Navigation position toggle
-    elements.toggleNavPositionBtn.addEventListener("click", function (e) {
+    elements.toggleNavPositionBtn.addEventListener("click", (e) => {
         e.preventDefault();
         toggleNavPosition();
     });
 
-    // Load saved navigation position
     loadNavPositionFromStorage();
 
-    // Keyboard navigation
-    document.addEventListener("keydown", function (e) {
+    document.addEventListener("keydown", (e) => {
         const mode = elements.readingModeSelect?.value || "scroll";
-        
-        // Xử lý riêng cho chế độ trang đôi: Lật trang bằng phím mũi tên
         if (mode === "double") {
             if (e.key === "ArrowLeft") {
-                const navLeft = document.querySelector('.page-nav-left');
+                const navLeft = document.querySelector(".page-nav-left");
                 if (navLeft) navLeft.click();
             }
             if (e.key === "ArrowRight") {
-                const navRight = document.querySelector('.page-nav-right');
+                const navRight = document.querySelector(".page-nav-right");
                 if (navRight) navRight.click();
             }
         }
-        
-        // Giữ lại phím P (Prev) và N (Next) để chuyển chương, vô hiệu hóa phím mũi tên cho chức năng này
         if (e.key.toLowerCase() === "p" && !elements.prevChapterBtn.disabled) {
             elements.prevChapterBtn.click();
         }
@@ -236,15 +202,13 @@ function setupEventListeners() {
         }
     });
 
-    // Follow buttons
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", (e) => {
         const followBtn = e.target.closest(".follow-btn");
         const unfollowBtn = e.target.closest(".unfollow-btn");
 
         if (followBtn) {
             const slug = followBtn.dataset.slug || currentSlug;
-            const title =
-                followBtn.dataset.title || elements.mangaTitle.textContent;
+            const title = followBtn.dataset.title || elements.mangaTitle.textContent;
             const chapterId = followBtn.dataset.chapterId || currentChapterId;
             toggleFollowManga(slug, title, chapterId);
         }
@@ -252,34 +216,28 @@ function setupEventListeners() {
         if (unfollowBtn) {
             const slug = unfollowBtn.dataset.slug;
             const manga = followedMangas.find((m) => m.slug === slug);
-            if (manga) {
-                toggleFollowManga(slug, manga.title, manga.chapterId);
-            }
+            if (manga) toggleFollowManga(slug, manga.title, manga.chapterId);
         }
     });
 
-    // Sự kiện cho warmth toggle
     const warmthToggle = document.querySelector(".warmth-toggle");
     const warmthControl = document.querySelector(".warmth-control");
 
-    warmthToggle.addEventListener("click", function (e) {
+    warmthToggle?.addEventListener("click", (e) => {
         e.preventDefault();
-        if (!isVerticalNav) { // Chỉ hoạt động khi ở chế độ nav-horizontal
-            warmthControl.classList.toggle("show");
-        }
+        if (!isVerticalNav) warmthControl.classList.toggle("show");
     });
 
-    // Ẩn thanh trượt khi click ra ngoài
-    document.addEventListener("click", function (e) {
-        if (!isVerticalNav && !warmthControl.contains(e.target)) {
+    document.addEventListener("click", (e) => {
+        if (!isVerticalNav && warmthControl && !warmthControl.contains(e.target)) {
             warmthControl.classList.remove("show");
         }
     });
 
     if (elements.readingModeSelect) {
-        elements.readingModeSelect.addEventListener("change", function(e) {
+        elements.readingModeSelect.addEventListener("change", (e) => {
             localStorage.setItem("readingMode", e.target.value);
-            currentDoublePageIndex = 0; // Đưa về trang đầu khi đổi chế độ
+            currentDoublePageIndex = 0;
             renderPages();
         });
     }
@@ -292,17 +250,13 @@ function restoreReadingMode() {
 }
 
 function applyDoubleReadingLayout(enabled) {
-    const mode = elements.readingModeSelect
-        ? elements.readingModeSelect.value
-        : "scroll";
-    const isEnabled =
-        enabled !== undefined ? enabled : mode === "double" && !!currentSlug;
+    const mode = elements.readingModeSelect ? elements.readingModeSelect.value : "scroll";
+    const isEnabled = enabled !== undefined ? enabled : mode === "double" && !!currentSlug;
     document.body.classList.toggle("double-reading-mode", isEnabled);
 }
 
 async function loadMangaContent(slug) {
     const urlParams = new URLSearchParams(window.location.search);
-
     try {
         helpers.showLoading(true);
         elements.mangaContent.style.display = "none";
@@ -311,23 +265,19 @@ async function loadMangaContent(slug) {
         applyDoubleReadingLayout();
 
         currentSlug = slug;
-
         await fetchMangaInfo(slug);
 
         if (!chapters || chapters.length === 0) {
             throw new Error("No chapters available");
         }
 
-        // Logic chọn chương trực tiếp với currentChapterId
         if (isNewest) {
             currentChapterId = chapters[chapters.length - 1].id;
-        } else if (!currentChapterId || !chapters.some((chapter) => chapter.id === currentChapterId)) {
-            currentChapterId = chapters[0].id; // Mặc định về chương đầu tiên nếu không hợp lệ
+        } else if (!currentChapterId || !chapters.some((c) => c.id === currentChapterId)) {
+            currentChapterId = chapters[0].id;
         }
 
-        currentChapterIndex = chapters.findIndex(
-            (chapter) => chapter.id === currentChapterId,
-        );
+        currentChapterIndex = chapters.findIndex((c) => c.id === currentChapterId);
 
         const url = new URL(window.location.href);
         url.searchParams.set("slug", slug);
@@ -341,111 +291,65 @@ async function loadMangaContent(slug) {
 
         await fetchChapterContent(slug, currentChapterId);
         isNewest = false;
-
         updateNavigation();
         helpers.updateFollowButton(currentSlug);
         applyWarmthFromStorage();
     } catch (error) {
         console.error("Error loading manga content:", error);
-        helpers.showError(
-            error.message ||
-                "Unable to load manga content. Please try again later.",
-        );
+        helpers.showError(error.message || "Unable to load manga content. Please try again later.");
     } finally {
         helpers.showLoading(false);
     }
 }
 
-/**
- * Fetch manga information from API
- * @param {string} slug - Manga slug/identifier
- */
 async function fetchMangaInfo(slug) {
     const apiUrl = `https://otruyenapi.com/v1/api/truyen-tranh/${encodeURIComponent(slug)}`;
-
     try {
-        helpers.showLoading(true);
-        console.log(`Fetching manga info for: ${slug}`);
-
         const response = await fetch(apiUrl, {
             method: "GET",
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             },
         });
 
-        console.log("API response status:", response.status);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
-        console.log("API response data:", data);
+        if (!data?.data?.item) throw new Error("Invalid API response structure");
 
-        if (!data?.data?.item) {
-            throw new Error("Invalid API response structure");
-        }
+        elements.mangaTitle.textContent = data.data.item.name || "Unknown Manga";
 
-        elements.mangaTitle.textContent =
-            data.data.item.name || "Unknown Manga";
-
-        // Process chapters data
         chapters = data.data.item.chapters[0].server_data.map((chapter) => ({
             id: chapter.chapter_api_data.split("/").pop(),
             number: chapter.chapter_name,
             title: chapter.chapter_title || "",
         }));
 
-        // Update current chapter index before populating dropdown
         updateCurrentChapterIndex();
-
-        // Populate chapter dropdown with the correct index
         populateChapterDropdown();
-
         return { success: true, chapters };
     } catch (error) {
         console.error("Error fetching manga info:", error);
         helpers.showError("Failed to load manga info. Please try again later.");
         return { success: false, error };
-    } finally {
-        helpers.showLoading(false);
     }
 }
 
-/**
- * Update the current chapter index based on currentChapterId
- */
 function updateCurrentChapterIndex() {
     if (!chapters || chapters.length === 0) {
         currentChapterIndex = -1;
         return;
     }
-
-    // Find the index of current chapter
-    currentChapterIndex = chapters.findIndex(
-        (chapter) => chapter.id === currentChapterId,
-    );
-    console.log("currentChapterId: ", currentChapterId);
-    console.log("chapters: ", currentChapterId);
-    // Fallback to first chapter if not found
+    currentChapterIndex = chapters.findIndex((c) => c.id === currentChapterId);
     if (currentChapterIndex === -1 && currentChapterId) {
-        console.warn(
-            `Chapter ${currentChapterId} not found, defaulting to first chapter`,
-        );
         currentChapterIndex = 0;
         currentChapterId = chapters[0].id;
-
-        // Update URL to reflect the correct chapter
         const url = new URL(window.location.href);
         url.searchParams.set("chapter_id", currentChapterId);
         window.history.replaceState({}, "", url.toString());
     }
-
-    console.log("Updated currentChapterIndex:", currentChapterIndex);
 }
 
 async function fetchMangaDetails(slug) {
@@ -456,40 +360,26 @@ async function fetchMangaDetails(slug) {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             },
         });
 
-        if (!response.ok) {
-            throw new Error(
-                `API request failed with status ${response.status}`,
-            );
-        }
+        if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
 
         const data = await response.json();
-        if (!data?.data?.item) {
-            throw new Error("Invalid API response structure");
-        }
+        if (!data?.data?.item) throw new Error("Invalid API response structure");
 
         const manga = data.data.item;
-        const cdnDomain =
-            data.data.APP_DOMAIN_CDN_IMAGE || "https://sv1.otruyencdn.com";
+        const cdnDomain = data.data.APP_DOMAIN_CDN_IMAGE || "https://sv1.otruyencdn.com";
 
         return {
             slug: manga.slug,
             name: manga.name || "Unknown Title",
-            author: Array.isArray(manga.author)
-                ? manga.author.join(", ")
-                : "Unknown Author",
-            thumbnail:
-                `${cdnDomain}/uploads/comics/${manga.thumb_url}` ||
-                "https://via.placeholder.com/50x70?text=No+Image",
+            author: Array.isArray(manga.author) ? manga.author.join(", ") : "Unknown Author",
+            thumbnail: `${cdnDomain}/uploads/comics/${manga.thumb_url}` || "https://via.placeholder.com/50x70?text=No+Image",
             status: manga.status || "Unknown",
             chapterCount: manga.chapters?.[0]?.server_data?.length || 0,
-            updatedAt: manga.updatedAt
-                ? new Date(manga.updatedAt).toLocaleDateString()
-                : "N/A",
+            updatedAt: manga.updatedAt ? new Date(manga.updatedAt).toLocaleDateString() : "N/A",
             chapters: manga.chapters || [],
         };
     } catch (error) {
@@ -514,14 +404,11 @@ async function fetchChapterContent(slug, chapterId) {
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         },
     });
 
-    if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
 
     const data = await response.json();
     if (!data || data.status !== "success" || !data.data) {
@@ -532,9 +419,7 @@ async function fetchChapterContent(slug, chapterId) {
     const chapterPath = data.data.item?.chapter_path || "";
     const chapterImages = data.data.item?.chapter_image || [];
 
-    if (!chapterImages.length) {
-        throw new Error("No images found in this chapter");
-    }
+    if (!chapterImages.length) throw new Error("No images found in this chapter");
 
     const pages = chapterImages.map((image, index) => ({
         id: index + 1,
@@ -543,16 +428,14 @@ async function fetchChapterContent(slug, chapterId) {
     }));
 
     currentChapterPages = pages;
-    const readingMode = elements.readingModeSelect
-        ? elements.readingModeSelect.value
-        : "scroll";
+    const readingMode = elements.readingModeSelect ? elements.readingModeSelect.value : "scroll";
     if (openDoublePageAtEnd && readingMode === "double") {
         currentDoublePageIndex = Math.max(0, pages.length - 2);
     } else {
         currentDoublePageIndex = 0;
     }
     openDoublePageAtEnd = false;
-    renderPages(); // Hàm mới xử lý hiển thị theo chế độ
+    renderPages();
 
     if (currentChapterIndex !== -1 && chapters[currentChapterIndex]) {
         const chapter = chapters[currentChapterIndex];
@@ -561,13 +444,9 @@ async function fetchChapterContent(slug, chapterId) {
 }
 
 function displayMangaPages(pages) {
-    if (!elements.mangaContent) {
-        console.error("Manga content container not found");
-        return;
-    }
+    if (!elements.mangaContent) return;
 
     elements.mangaContent.innerHTML = "";
-
     if (Array.isArray(pages) && pages.length > 0) {
         const pagesContainer = document.createElement("div");
         pagesContainer.className = "manga-pages-container";
@@ -583,11 +462,9 @@ function displayMangaPages(pages) {
             img.alt = `Page ${page.id}`;
             img.className = "manga-page";
             img.loading = "lazy";
-
             img.onerror = function () {
                 this.onerror = null;
-                this.src =
-                    "https://via.placeholder.com/800x1200/333333/FFFFFF?text=Image+Load+Error";
+                this.src = "https://via.placeholder.com/800x1200/333333/FFFFFF?text=Image+Load+Error";
             };
 
             const pageNumber = document.createElement("div");
@@ -613,13 +490,12 @@ function renderPages() {
     } else {
         displayDoublePages();
     }
-    applyWarmthFromStorage(); // Giữ nguyên filter màu đã chỉnh
+    applyWarmthFromStorage();
 }
 
 function displayDoublePages() {
     if (!elements.mangaContent) return;
-    
-    // Bắt buộc khung chứa phải hiển thị
+
     elements.mangaContent.style.display = "block";
     elements.mangaContent.innerHTML = "";
 
@@ -628,7 +504,6 @@ function displayDoublePages() {
         return;
     }
 
-    // Đảm bảo index luôn là số nguyên, tránh lỗi cộng dồn chuỗi
     currentDoublePageIndex = parseInt(currentDoublePageIndex, 10);
 
     const container = document.createElement("div");
@@ -637,7 +512,6 @@ function displayDoublePages() {
     const wrapper = document.createElement("div");
     wrapper.className = "double-page-wrapper";
 
-    // Trang trái: trang hiện tại, trang phải: trang kế tiếp
     if (currentChapterPages[currentDoublePageIndex]) {
         const imgLeft = document.createElement("img");
         imgLeft.src = currentChapterPages[currentDoublePageIndex].url;
@@ -652,7 +526,6 @@ function displayDoublePages() {
         wrapper.appendChild(imgRight);
     }
 
-    // Nút lùi trang
     const btnPrev = document.createElement("button");
     btnPrev.className = "page-nav-btn page-nav-left";
     btnPrev.innerHTML = '<i class="fas fa-chevron-left"></i>';
@@ -667,9 +540,8 @@ function displayDoublePages() {
         }
     };
 
-    // Nút tiến trang (Giờ nằm bên phải màn hình)
     const btnNext = document.createElement("button");
-    btnNext.className = "page-nav-btn page-nav-right"; // Đổi class để CSS bắt đúng vị trí phải
+    btnNext.className = "page-nav-btn page-nav-right";
     btnNext.innerHTML = '<i class="fas fa-chevron-right"></i>';
     btnNext.onclick = (e) => {
         e.preventDefault();
@@ -681,7 +553,6 @@ function displayDoublePages() {
         }
     };
 
-    // Giữ nút trong layout (gutter) nhưng vô hiệu khi hết đường lùi/tiến
     if (currentDoublePageIndex === 0 && currentChapterIndex <= 0) {
         btnPrev.disabled = true;
         btnPrev.setAttribute("aria-hidden", "true");
@@ -694,15 +565,10 @@ function displayDoublePages() {
     container.appendChild(btnPrev);
     container.appendChild(wrapper);
     container.appendChild(btnNext);
-    
     elements.mangaContent.appendChild(container);
 }
 
-/**
- * Populate the chapter dropdown list
- */
 function populateChapterDropdown() {
-    // Clear previous items
     elements.chapterList.innerHTML = "";
 
     if (!chapters || chapters.length === 0) {
@@ -712,33 +578,26 @@ function populateChapterDropdown() {
         return;
     }
 
-    // Set dropdown button text
     const displayIndex = currentChapterIndex !== -1 ? currentChapterIndex : 0;
     elements.chapterDropdown.textContent = `Chap ${chapters[displayIndex].number}`;
 
-    // Add chapters to dropdown in reverse order (newest first)
-    [...chapters].reverse().forEach((chapter, index) => {
+    [...chapters].reverse().forEach((chapter) => {
         const listItem = document.createElement("li");
         const link = document.createElement("a");
         link.className = "dropdown-item";
         link.href = "#";
-
-        // Format chapter text
         link.textContent = helpers.formatChapterText(chapter);
 
-        // Mark as read if in read history
         if (readChapters[currentSlug]?.includes(chapter.id)) {
             link.classList.add("read");
         }
 
-        // Highlight current chapter
         if (chapter.id === currentChapterId) {
             link.classList.add("active");
             link.innerHTML = `<i class="fas fa-bookmark me-2"></i>${helpers.formatChapterText(chapter)}`;
-            link.dataset.selected = "true"; // Thêm thuộc tính để dễ xác định
+            link.dataset.selected = "true";
         }
 
-        // Add click handler
         link.addEventListener("click", (e) => {
             e.preventDefault();
             navigateToChapter(chapter.id);
@@ -748,16 +607,16 @@ function populateChapterDropdown() {
         elements.chapterList.appendChild(listItem);
     });
 
-    // Update dropdown position based on navigation style
     updateDropdownPosition();
 
-    // Thêm sự kiện để focus vào chapter hiện tại khi dropdown mở
-    elements.chapterDropdown.addEventListener("shown.bs.dropdown", () => {
-        const activeItem = elements.chapterList.querySelector(".dropdown-item.active");
-        if (activeItem) {
-            activeItem.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-    }, { once: true }); // Chỉ thêm listener một lần để tránh trùng lặp
+    elements.chapterDropdown.addEventListener(
+        "shown.bs.dropdown",
+        () => {
+            const activeItem = elements.chapterList.querySelector(".dropdown-item.active");
+            if (activeItem) activeItem.scrollIntoView({ behavior: "smooth", block: "center" });
+        },
+        { once: true }
+    );
 }
 
 function navigateToChapter(chapterId) {
@@ -774,7 +633,7 @@ function navigateToChapter(chapterId) {
         window.history.pushState({}, "", url.toString());
 
         currentChapterId = chapterId;
-        loadMangaContent(currentSlug, currentChapterId);
+        loadMangaContent(currentSlug);
     }
 }
 
@@ -787,17 +646,14 @@ function updateNavigation() {
             : `No Previous Chapter`;
 
     elements.nextChapterBtn.disabled =
-        currentChapterIndex >= chapters.length - 1 ||
-        currentChapterIndex === -1;
+        currentChapterIndex >= chapters.length - 1 || currentChapterIndex === -1;
     elements.nextChapterBtn.innerHTML = `<i class="fas fa-arrow-right"></i>`;
     elements.nextChapterBtn.title =
         currentChapterIndex < chapters.length - 1 && currentChapterIndex !== -1
             ? `Next Chapter (${chapters[currentChapterIndex + 1].number})`
             : `No Next Chapter`;
 
-    if (currentChapterId) {
-        saveReadChapter(currentChapterId);
-    }
+    if (currentChapterId) saveReadChapter(currentChapterId);
 
     if (currentChapterIndex !== -1 && chapters[currentChapterIndex]) {
         const chapter = chapters[currentChapterIndex];
@@ -807,10 +663,7 @@ function updateNavigation() {
     }
 
     if (elements.chapterCount) {
-        elements.chapterCount.textContent =
-            chapters.length > 0
-                ? `${chapters.length}`
-                : "No chapters available";
+        elements.chapterCount.textContent = chapters.length > 0 ? `${chapters.length}` : "No chapters available";
     }
 }
 
@@ -821,65 +674,41 @@ function toggleNavPosition() {
     updateNavPositionIcon();
     updateDropdownPosition();
 
-    // Cập nhật trạng thái warmth-control
     const warmthControl = document.querySelector(".warmth-control");
-    if (isVerticalNav) {
-        warmthControl.classList.remove("show"); // Đảm bảo thanh trượt luôn hiển thị ở nav-vertical
-    } else {
-        warmthControl.classList.remove("show"); // Ẩn thanh trượt khi chuyển sang nav-horizontal
-    }
+    if (warmthControl) warmthControl.classList.remove("show");
 }
 
 function loadNavPositionFromStorage() {
-    const savedPosition = localStorage.getItem("isVerticalNav");
-    if (savedPosition !== null) {
-        isVerticalNav = savedPosition === "true";
-    }
+    const saved = localStorage.getItem("isVerticalNav");
+    if (saved !== null) isVerticalNav = saved === "true";
     applyNavPositionStyles();
     updateNavPositionIcon();
     updateDropdownPosition();
 
-    // Cập nhật trạng thái warmth-control khi load
     const warmthControl = document.querySelector(".warmth-control");
-    if (!isVerticalNav) {
-        warmthControl.classList.remove("show"); // Ẩn thanh trượt ở nav-horizontal
-    }
+    if (warmthControl && !isVerticalNav) warmthControl.classList.remove("show");
 }
 
 function applyNavPositionStyles() {
-    elements.chapterNavigation.classList.remove(
-        "nav-vertical",
-        "nav-horizontal",
-    );
-    elements.chapterNavigation.classList.add(
-        isVerticalNav ? "nav-vertical" : "nav-horizontal",
-    );
+    elements.chapterNavigation.classList.remove("nav-vertical", "nav-horizontal");
+    elements.chapterNavigation.classList.add(isVerticalNav ? "nav-vertical" : "nav-horizontal");
 }
 
 function updateNavPositionIcon() {
     if (isVerticalNav) {
         elements.toggleNavPositionBtn.title = "Switch to horizontal layout";
-        elements.toggleNavPositionBtn.innerHTML =
-            '<i class="fas fa-grip-horizontal"></i>';
+        elements.toggleNavPositionBtn.innerHTML = '<i class="fas fa-grip-horizontal"></i>';
     } else {
         elements.toggleNavPositionBtn.title = "Switch to vertical layout";
-        elements.toggleNavPositionBtn.innerHTML =
-            '<i class="fas fa-grip-vertical"></i>';
+        elements.toggleNavPositionBtn.innerHTML = '<i class="fas fa-grip-vertical"></i>';
     }
 }
 
 function updateDropdownPosition() {
     const dropdownMenu = document.querySelector(".dropdown-menu");
     if (!dropdownMenu) return;
-
-    dropdownMenu.classList.remove(
-        "dropdown-menu-end",
-        "dropdown-menu-start",
-        "dropdown-menu-up",
-    );
-    dropdownMenu.classList.add(
-        isVerticalNav ? "dropdown-menu-start" : "dropdown-menu-up",
-    );
+    dropdownMenu.classList.remove("dropdown-menu-end", "dropdown-menu-start", "dropdown-menu-up");
+    dropdownMenu.classList.add(isVerticalNav ? "dropdown-menu-start" : "dropdown-menu-up");
 }
 
 function loadReadHistory() {
@@ -887,11 +716,8 @@ function loadReadHistory() {
     if (history) {
         try {
             readChapters = JSON.parse(history);
-            if (typeof readChapters !== "object" || readChapters === null) {
-                readChapters = {};
-            }
-        } catch (error) {
-            console.error("Error parsing read history:", error);
+            if (typeof readChapters !== "object" || readChapters === null) readChapters = {};
+        } catch {
             readChapters = {};
         }
     }
@@ -925,29 +751,20 @@ async function showEmptyState(message = "No manga content to display") {
             </div>
         `;
 
-        const mangaDetails = await Promise.all(
-            followedMangas.map((manga) => fetchMangaDetails(manga.slug)),
-        );
+        const mangaDetails = await Promise.all(followedMangas.map((m) => fetchMangaDetails(m.slug)));
 
         const followedMangasHtml = mangaDetails
-            .map((manga, index) => {
-                const latestChapterId = followedMangas.find(
-                    (m) => m.slug === manga.slug,
-                )?.chapterId;
+            .map((manga) => {
+                const latestChapterId = followedMangas.find((m) => m.slug === manga.slug)?.chapterId;
                 const url = latestChapterId
                     ? `./?slug=${manga.slug}&chapter_id=${latestChapterId}`
                     : `./?slug=${manga.slug}`;
 
-                const chapters = manga.chapters?.[0]?.server_data || [];
-                const chapterIndex = chapters.findIndex(
-                    (ch) =>
-                        ch.chapter_api_data.split("/").pop() ===
-                        latestChapterId,
+                const chaptersData = manga.chapters?.[0]?.server_data || [];
+                const chapterIndex = chaptersData.findIndex(
+                    (ch) => ch.chapter_api_data.split("/").pop() === latestChapterId
                 );
-
-                const chapter =
-                    chapterIndex !== -1 ? chapters[chapterIndex] : null;
-
+                const chapter = chapterIndex !== -1 ? chaptersData[chapterIndex] : null;
                 const chapterName = chapterIndex + 1;
                 const chapterTitle = chapter?.chapter_title || "";
                 const readingText = chapterName
@@ -965,7 +782,7 @@ async function showEmptyState(message = "No manga content to display") {
                         <p class="small text-muted mb-0">${readingText}</p>
                     </div>
                     <button class="unfollow-btn" data-slug="${manga.slug}" title="Bỏ theo dõi">
-                        <i class="fas fa-star"></i> <!-- Ngôi sao đầy vàng cho followed -->
+                        <i class="fas fa-star"></i>
                     </button>
                 </div>
             `;
@@ -990,8 +807,7 @@ function loadFollowedMangas() {
     if (followed) {
         try {
             followedMangas = JSON.parse(followed);
-        } catch (error) {
-            console.error("Error parsing followed mangas:", error);
+        } catch {
             followedMangas = [];
         }
     }
@@ -1000,18 +816,13 @@ function loadFollowedMangas() {
 function saveReadChapter(chapterId) {
     if (!chapterId || !currentSlug) return;
 
-    if (!readChapters[currentSlug]) {
-        readChapters[currentSlug] = [];
-    }
-
+    if (!readChapters[currentSlug]) readChapters[currentSlug] = [];
     if (!readChapters[currentSlug].includes(chapterId)) {
         readChapters[currentSlug].push(chapterId);
         localStorage.setItem("readChapters", JSON.stringify(readChapters));
     }
 
-    const mangaIndex = followedMangas.findIndex(
-        (manga) => manga.slug === currentSlug,
-    );
+    const mangaIndex = followedMangas.findIndex((m) => m.slug === currentSlug);
     if (mangaIndex !== -1) {
         followedMangas[mangaIndex].chapterId = chapterId;
         saveFollowedMangas();
@@ -1022,52 +833,13 @@ function saveFollowedMangas() {
     localStorage.setItem("followedMangas", JSON.stringify(followedMangas));
 }
 
-async function loadLatestChapter(slug) {
-    try {
-        helpers.showLoading(true);
-        elements.mangaContent.style.display = "none";
-        helpers.hideError();
-
-        currentSlug = slug;
-        await fetchMangaInfo(slug);
-
-        if (chapters && chapters.length > 0) {
-            currentChapterId = chapters[chapters.length - 1].id; // Gán trực tiếp
-
-            const url = new URL(window.location.href);
-            url.searchParams.set("slug", slug);
-            url.searchParams.set("chapter_id", currentChapterId);
-            url.searchParams.set("newest", "true");
-            window.history.replaceState({}, "", url.toString());
-
-            await fetchChapterContent(slug, currentChapterId);
-            updateNavigation();
-            applyWarmthFromStorage();
-        } else {
-            throw new Error("No chapters found for this manga");
-        }
-    } catch (error) {
-        console.error("Error loading latest chapter:", error);
-        helpers.showError(
-            error.message ||
-                "Unable to load manga content. Please try again later.",
-        );
-    } finally {
-        helpers.showLoading(false);
-    }
-}
-
 async function handleSearchResults(keyword) {
     if (!keyword || typeof keyword !== "string") {
-        elements.mangaContent.innerHTML =
-            '<div class="alert alert-info">Vui lòng nhập từ khóa tìm kiếm hợp lệ.</div>';
+        elements.mangaContent.innerHTML = '<div class="alert alert-info">Vui lòng nhập từ khóa tìm kiếm hợp lệ.</div>';
         return;
     }
 
-    if (!elements.mangaContent || !elements.chapterNavigation) {
-        console.error("Required DOM elements not found");
-        return;
-    }
+    if (!elements.mangaContent || !elements.chapterNavigation) return;
 
     elements.chapterNavigation.style.display = "none";
     applyDoubleReadingLayout(false);
@@ -1075,8 +847,7 @@ async function handleSearchResults(keyword) {
     elements.followMangaBtn.style.display = "none";
 
     try {
-        elements.mangaContent.innerHTML =
-            '<div class="text-center my-5"><div class="spinner-border"></div></div>';
+        elements.mangaContent.innerHTML = '<div class="text-center my-5"><div class="spinner-border"></div></div>';
 
         const response = await fetch(
             `https://otruyenapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}`,
@@ -1085,67 +856,57 @@ async function handleSearchResults(keyword) {
                     Accept: "application/json",
                     "Content-Type": "application/json",
                 },
-            },
+            }
         );
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
 
         if (data.status === "success" && data.data?.items?.length > 0) {
             const resultsHtml = data.data.items
-        .map((manga) => {
-            const thumbnail = manga.thumb_url
-                ? `${data.data.APP_DOMAIN_CDN_IMAGE}/uploads/comics/${manga.thumb_url}`
-                : "https://via.placeholder.com/200x300?text=No+Image";
+                .map((manga) => {
+                    const thumbnail = manga.thumb_url
+                        ? `${data.data.APP_DOMAIN_CDN_IMAGE}/uploads/comics/${manga.thumb_url}`
+                        : "https://via.placeholder.com/200x300?text=No+Image";
+                    const date = manga.updatedAt ? new Date(manga.updatedAt).toLocaleDateString() : "N/A";
+                    const authors = Array.isArray(manga.author) ? manga.author.join(", ") : "Unknown";
+                    const chapterCount = manga.chapters?.[0]?.server_data?.length || 0;
+                    const isFollowed = followedMangas.some((m) => m.slug === manga.slug);
 
-            const date = manga.updatedAt
-                ? new Date(manga.updatedAt).toLocaleDateString()
-                : "N/A";
-            const authors = Array.isArray(manga.author)
-                ? manga.author.join(", ")
-                : "Unknown";
-            const chapterCount =
-                manga.chapters?.[0]?.server_data?.length || 0;
-            const isFollowed = followedMangas.some(
-                (m) => m.slug === manga.slug,
-            );
-
-            return `
-            <div class="card mb-3 search-result" style="max-width: 800px; margin: auto;">
-                <div class="row g-0">
-                    <div class="col-md-3">
-                        <img src="${thumbnail}" class="img-fluid rounded-start" alt="${manga.name}" 
-                            style="height: 200px; object-fit: cover;"
-                            onerror="this.src='https://via.placeholder.com/200x300?text=Error+Loading+Image'">
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <h5 class="card-title me-2">
-                                    <a href="#" onclick="handleMangaClick('${manga.slug}'); return false;" class="text-decoration-none text-info">
-                                        ${manga.name}
-                                    </a>
-                                </h5>
-                                <button class="btn btn-sm btn-outline-info follow-btn ${isFollowed ? "followed" : ""}" data-slug="${manga.slug}" data-title="${manga.name}">
-                                    ${isFollowed ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'}
-                                </button>
+                    return `
+                    <div class="card mb-3 search-result" style="max-width: 800px; margin: auto;">
+                        <div class="row g-0">
+                            <div class="col-md-3">
+                                <img src="${thumbnail}" class="img-fluid rounded-start" alt="${manga.name}"
+                                    style="height: 200px; object-fit: cover;"
+                                    onerror="this.src='https://via.placeholder.com/200x300?text=Error+Loading+Image'">
                             </div>
-                            <p class="card-text">
-                                <small class="text-muted">Author: <span class="highlight-text">${authors}</span></small><br>
-                                <small class="text-muted">Status: <span class="highlight-text">${manga.status || "Unknown"}</span></small><br>
-                                <small class="text-muted">Chapters: <span class="highlight-text">${chapterCount}</span></small><br>
-                                <small class="text-muted">Updated: <span class="highlight-text">${date}</span></small>
-                            </p>
+                            <div class="col-md-9">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <h5 class="card-title me-2">
+                                            <a href="#" onclick="handleMangaClick('${manga.slug}'); return false;" class="text-decoration-none text-info">
+                                                ${manga.name}
+                                            </a>
+                                        </h5>
+                                        <button class="btn btn-sm btn-outline-info follow-btn ${isFollowed ? "followed" : ""}" data-slug="${manga.slug}" data-title="${manga.name}">
+                                            ${isFollowed ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'}
+                                        </button>
+                                    </div>
+                                    <p class="card-text">
+                                        <small class="text-muted">Author: <span class="highlight-text">${authors}</span></small><br>
+                                        <small class="text-muted">Status: <span class="highlight-text">${manga.status || "Unknown"}</span></small><br>
+                                        <small class="text-muted">Chapters: <span class="highlight-text">${chapterCount}</span></small><br>
+                                        <small class="text-muted">Updated: <span class="highlight-text">${date}</span></small>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        `;
-        })
-        .join("");
+                `;
+                })
+                .join("");
 
             elements.mangaContent.innerHTML = `<div class="container">${resultsHtml}</div>`;
         } else {
@@ -1166,40 +927,32 @@ async function handleSearchResults(keyword) {
 }
 
 function handleMangaClick(slug) {
-    fetch(
-        `https://otruyenapi.com/v1/api/truyen-tranh/${encodeURIComponent(slug)}`,
-        {
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
+    fetch(`https://otruyenapi.com/v1/api/truyen-tranh/${encodeURIComponent(slug)}`, {
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
         },
-    )
+    })
         .then((response) => response.json())
         .then((data) => {
             if (data?.data?.item?.chapters?.[0]?.server_data) {
                 const firstChapter = data.data.item.chapters[0].server_data[0];
-                const chapterId = firstChapter.chapter_api_data
-                    .split("/")
-                    .pop();
+                const chapterId = firstChapter.chapter_api_data.split("/").pop();
                 window.location.href = `./?slug=${slug}&chapter_id=${chapterId}`;
             } else {
                 window.location.href = `./?slug=${slug}`;
             }
         })
-        .catch((error) => {
-            console.error("Error fetching manga info:", error);
+        .catch(() => {
             window.location.href = `./?slug=${slug}`;
         });
 }
 
 function setupWarmthSlider() {
     const savedWarmth = localStorage.getItem("warmthValue");
-    if (savedWarmth !== null) {
-        elements.warmthSlider.value = savedWarmth;
-    }
+    if (savedWarmth !== null) elements.warmthSlider.value = savedWarmth;
 
-    elements.warmthSlider.addEventListener("input", function () {
+    elements.warmthSlider.addEventListener("input", () => {
         const warmthValue = elements.warmthSlider.value;
         applyWarmth(warmthValue);
         localStorage.setItem("warmthValue", warmthValue);

@@ -1,11 +1,5 @@
 /* Custom styles for the manga reader */
 
-/* General styling */
-body {
-    min-height: 100vh;
-}
-
-/* Apple-style design */
 :root {
     --apple-blur: saturate(180%) blur(20px);
     --apple-primary: #007AFF;
@@ -14,12 +8,13 @@ body {
 }
 
 body {
+    min-height: 100vh;
     background-color: #212121;
     color: #fff;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Enhanced navbar styling */
+/* Navbar */
 .navbar {
     background: var(--apple-background) !important;
     backdrop-filter: var(--apple-blur);
@@ -78,7 +73,10 @@ body {
     transform: translateY(-1px);
 }
 
+/* Chapter navigation */
 #chapter-navigation {
+    position: fixed;
+    z-index: 1000;
     background: var(--apple-surface) !important;
     backdrop-filter: var(--apple-blur);
     -webkit-backdrop-filter: var(--apple-blur);
@@ -87,6 +85,8 @@ body {
     padding: 0.5rem !important;
     display: flex;
     align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 }
 
 #chapter-navigation button {
@@ -94,141 +94,35 @@ body {
     border: none;
     background: transparent;
     color: #fff;
+    transition: all 0.2s ease;
 }
 
 #chapter-navigation button:hover:not(:disabled) {
     background: var(--apple-primary);
+    transform: scale(1.05);
 }
+
+#chapter-navigation button:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
 #chapter-count {
     text-align: center;
     margin-top: 0 !important;
 }
 
-.dropdown-menu {
-    background: var(--apple-surface);
-    backdrop-filter: var(--apple-blur);
-    -webkit-backdrop-filter: var(--apple-blur);
-    border: none;
-    border-radius: 13px;
-    padding: 0.5rem;
-}
-
-.dropdown-item {
-    color: #fff;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-}
-
-.dropdown-item:hover {
-    background: var(--apple-primary);
-    color: #fff;
-}
-
-.manga-page {
-    border-radius: 13px;
-    transition: all 0.3s ease;
-    touch-action: pinch-zoom pan-y; /* Đảm bảo zoom/scroll trên cảm ứng */
-}
-
-/* Manga display container */
-#manga-content {
-    max-width: 100%;
-    margin: 0 auto;
-}
-
-/* Manga pages container */
-.manga-pages-container {
-    max-width: 100%;
-    margin: 0 auto;
-}
-
-/* Manga page container */
-.manga-page-container {
-    position: relative;
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-/* Manga page images */
-.manga-page {
-    max-width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    display: block;
-    margin: 0 auto;
-}
-
-/* Page number badge */
-.page-number {
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    opacity: 0.8;
-}
-
-/* Chapter info section */
-.chapter-info {
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border-left: 4px solid var(--bs-info);
-    position: sticky;
-    top: 70px;
-    z-index: 90;
-}
-
-/* Horizontal reading mode */
-.horizontal-mode {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding: 20px 0;
-}
-
-.horizontal-mode .manga-page-container {
-    flex: 0 0 auto;
-    min-width: 95%;
-    scroll-snap-align: center;
-    margin: 0 10px;
-}
-
-/* Parameter display styling */
-.param-display {
-    border-left: 4px solid var(--bs-info);
-}
-
-/* Chapter navigation - Repositioned based on screen size */
-#chapter-navigation {
-    position: fixed;
-    z-index: 1000;
-    background-color: rgba(33, 37, 41, 0.85);
-    padding: 8px;
-    border-radius: 50px;
-    backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Toggle nav position button styling */
 #toggle-nav-position {
     border-radius: 50%;
     width: 30px;
     height: 30px;
     padding: 0;
-    line-height: 30px;
-    text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
 }
 
-/* Default styles - these will apply if nav-vertical or nav-horizontal classes aren't present */
-
-/* Vertical navigation layout (for desktop/landscape) */
+/* Vertical nav */
 #chapter-navigation.nav-vertical {
     right: 0;
     bottom: 0;
@@ -246,15 +140,11 @@ body {
     margin: 2px 0;
 }
 
-#chapter-navigation.nav-vertical .dropdown {
-    /* width: 100%; */
-}
-
 #chapter-navigation.nav-vertical #toggle-nav-position {
     align-self: center;
 }
 
-/* Horizontal navigation layout (for mobile/portrait) */
+/* Horizontal nav */
 #chapter-navigation.nav-horizontal {
     left: 0;
     right: 0;
@@ -288,7 +178,6 @@ body {
     padding-bottom: 60px;
 }
 
-/* Ẩn thanh trượt mặc định khi ở chế độ nav-horizontal */
 #chapter-navigation.nav-horizontal .warmth-control .warmth-slider {
     display: none;
     width: 0;
@@ -296,87 +185,44 @@ body {
     transition: width 0.3s ease, opacity 0.2s ease;
 }
 
-/* Hiển thị thanh trượt khi có class 'show' */
 #chapter-navigation.nav-horizontal .warmth-control.show .warmth-slider {
     display: block;
-    width: 100px; /* Chiều rộng mặc định của thanh trượt */
+    width: 100px;
     opacity: 1;
 }
 
-/* Responsive layout - these will apply by default if no toggle is pressed */
-@media (min-width: 769px) {
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) {
-        right: 20px;
-        bottom: 20px;
-        flex-direction: column;
-        gap: 5px;
-        width: auto;
-        border-radius: 20px;
-    }
-
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) button {
-        width: 100%;
-        border-radius: 15px;
-        margin: 2px 0;
-    }
-
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) .dropdown {
-        width: 100%;
-    }
-
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) #toggle-nav-position {
-        align-self: center;
-    }
+#chapter-navigation.nav-vertical .warmth-control .warmth-slider {
+    display: block;
+    width: 100px;
+    opacity: 1;
 }
 
-@media (max-width: 768px) {
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) {
-        left: 0;
-        right: 0;
-        bottom: 0;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        border-radius: 0;
-        border-top-left-radius: 15px;
-        border-top-right-radius: 15px;
-        gap: 8px;
-        padding: 8px 16px;
-    }
-
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) button {
-        flex: 0 0 auto;
-        border-radius: 15px;
-        padding: 4px 12px;
-    }
-
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) .dropdown {
-        flex: 1;
-        max-width: 140px;
-    }
-
-    .manga-page {
-        max-width: 100%;
-    }
-
-    /* Add bottom padding to prevent content being hidden behind navigation */
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) ~ #manga-content {
-        padding-bottom: 60px;
-    }
-    #search-form {
-        margin-right: 0 !important;
-        margin-top: 10px;
-    }
+/* Dropdown */
+.dropdown-menu {
+    background: var(--apple-surface);
+    backdrop-filter: var(--apple-blur);
+    -webkit-backdrop-filter: var(--apple-blur);
+    border: none;
+    border-radius: 13px;
+    padding: 0.5rem;
 }
 
-/* Dropdown menu for chapters */
+.dropdown-item {
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+    background: var(--apple-primary);
+    color: #fff;
+}
+
 #chapter-list {
     max-height: 300px;
     overflow-y: auto;
 }
 
-/* Dropdown menu positioning */
 .dropdown-menu-up {
     top: auto !important;
     bottom: 100% !important;
@@ -384,34 +230,55 @@ body {
     margin-bottom: 0.125rem !important;
 }
 
-/* Active chapter in dropdown */
 #chapter-list .active {
     background-color: var(--bs-dark);
     color: var(--bs-info);
     border-left: 3px solid var(--bs-info);
 }
 
-/* Read chapter in dropdown */
 #chapter-list .read {
     opacity: 0.6;
     color: var(--bs-secondary);
 }
 
-/* Button styles */
-#chapter-navigation button {
-    transition: all 0.2s ease;
+/* Manga content */
+#manga-content {
+    max-width: 100%;
+    margin: 0 auto;
 }
 
-#chapter-navigation button:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+.manga-pages-container {
+    max-width: 100%;
+    margin: 0 auto;
 }
 
-#chapter-navigation button:active:not(:disabled) {
-    transform: scale(0.95);
+.manga-page-container {
+    position: relative;
+    margin-bottom: 30px;
+    text-align: center;
 }
 
-/* Empty state styling */
+.manga-page {
+    max-width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 13px;
+    display: block;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+    touch-action: pinch-zoom pan-y;
+}
+
+.page-number {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Empty state */
 .empty-state {
     padding: 50px;
     text-align: center;
@@ -427,32 +294,12 @@ body {
 }
 
 .empty-state p {
-    word-wrap: break-word; /* Ngắt từ khi vượt quá chiều rộng */
-    overflow-wrap: break-word; /* Hỗ trợ thêm cho các trình duyệt mới */
-    white-space: normal; /* Cho phép xuống dòng tự nhiên */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
-/* Smooth transition for reading mode toggle */
-#manga-content, .manga-pages-container {
-    transition: all 0.3s ease;
-}
-
-/* Loading state for images */
-.manga-page.loading {
-    min-height: 300px;
-    background-color: #2a2a2a;
-    background-image: linear-gradient(90deg, #2a2a2a, #3a3a3a, #2a2a2a);
-    background-size: 200% 100%;
-    animation: loading-pulse 1.5s infinite;
-    border-radius: 4px;
-}
-
-@keyframes loading-pulse {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* Apple-inspired search result styling */
+/* Search result */
 .search-result {
     max-width: 800px;
     margin: auto;
@@ -496,10 +343,10 @@ body {
     object-fit: cover;
     border-top-left-radius: 13px;
     border-bottom-left-radius: 13px;
-    padding: 8px; /* Added padding for the thumbnail */
+    padding: 8px;
 }
 
-/* Warmth slider styling */
+/* Warmth */
 .warmth-control {
     display: flex;
     align-items: center;
@@ -507,7 +354,6 @@ body {
     position: relative;
 }
 
-/* Tinh chỉnh label để hoạt động như nút */
 .warmth-toggle {
     cursor: pointer;
     padding: 4px;
@@ -518,16 +364,8 @@ body {
     color: var(--apple-primary);
 }
 
-/* Khi thanh trượt hiển thị, giữ khoảng cách đẹp mắt */
 #chapter-navigation.nav-horizontal .warmth-control.show {
     gap: 8px;
-}
-
-/* Đảm bảo thanh trượt hiển thị bình thường ở chế độ nav-vertical */
-#chapter-navigation.nav-vertical .warmth-control .warmth-slider {
-    display: block;
-    width: 100px;
-    opacity: 1;
 }
 
 .warmth-slider {
@@ -535,7 +373,7 @@ body {
     appearance: none;
     width: 100px;
     height: 6px;
-    background: #ffffff; /* Màu trắng mặc định (trạng thái gốc) */
+    background: #ffffff;
     border-radius: 5px;
     outline: none;
     transition: background 0.2s ease;
@@ -566,10 +404,7 @@ body {
     transform: scale(1.2);
 }
 
-.warmth-slider::-webkit-slider-thumb:hover {
-    background: #5cdbff;
-}
-
+.warmth-slider::-webkit-slider-thumb:hover,
 .warmth-slider::-moz-range-thumb:hover {
     background: #5cdbff;
 }
@@ -578,7 +413,7 @@ body {
     color: #5cdbff;
 }
 
-/* Follow button styling */
+/* Follow button */
 .follow-btn {
     transition: all 0.2s ease;
     position: absolute;
@@ -590,7 +425,7 @@ body {
 }
 
 .follow-btn i {
-    font-size: 1rem; /* Kích thước ngôi sao */
+    font-size: 1rem;
 }
 
 .follow-btn:hover {
@@ -598,14 +433,13 @@ body {
     background: var(--apple-primary);
 }
 
-/* Trạng thái chưa theo dõi (ngôi sao rỗng) */
 .follow-btn .far.fa-star {
-    color: #fff; /* Màu trắng cho ngôi sao rỗng */
+    color: #fff;
 }
 
-/* Trạng thái đã theo dõi (ngôi sao đầy) */
-.follow-btn.followed .fas.fa-star {
-    color: #ffd700; /* Màu vàng cho ngôi sao đầy */
+.follow-btn.followed .fas.fa-star,
+.follow-btn.followed i {
+    color: #ffd700;
 }
 
 .follow-btn.followed {
@@ -613,16 +447,12 @@ body {
 }
 
 .follow-btn.followed:hover {
-    background: #5cdbff; /* Màu hover khi đã theo dõi */
+    background: #5cdbff;
 }
 
-.follow-btn.followed i {
-    color: #ffd700; /* Màu vàng cho icon ngôi sao khi đã theo dõi */
-}
-
-/* Followed mangas section */
+/* Followed mangas */
 .followed-mangas {
-    margin-top: 20px 0;
+    margin-top: 20px;
     padding: 0 10px;
 }
 
@@ -632,7 +462,6 @@ body {
     text-align: center;
 }
 
-/* Grid layout for followed manga cards */
 .followed-mangas-grid {
     display: grid;
     gap: 20px;
@@ -640,7 +469,6 @@ body {
     padding-bottom: 20px;
 }
 
-/* Individual manga card */
 .followed-manga-card {
     position: relative;
     display: flex;
@@ -661,7 +489,6 @@ body {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* Thumbnail styling */
 .followed-manga-thumbnail {
     width: 80px;
     height: 120px;
@@ -675,7 +502,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Manga info styling */
 .followed-manga-info {
     flex-grow: 1;
     color: #fff;
@@ -700,7 +526,6 @@ body {
     line-height: 1.4;
 }
 
-/* Unfollow button styling */
 .followed-manga-card .unfollow-btn {
     position: absolute;
     top: 10px;
@@ -712,111 +537,19 @@ body {
 }
 
 .followed-manga-card .unfollow-btn .fas.fa-star {
-    color: #ffd700; /* Ngôi sao đầy vàng cho trạng thái followed */
+    color: #ffd700;
     font-size: 1rem;
 }
 
 .followed-manga-card .unfollow-btn:hover .fas.fa-star {
-    color: #ff4d4f; /* Đổi thành đỏ khi hover để gợi ý bỏ theo dõi */
+    color: #ff4d4f;
 }
 
 .followed-manga-card .unfollow-btn:hover {
     transform: scale(1.2);
 }
 
-.followed-manga-card .unfollow-btn i {
-    font-size: 1rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .followed-mangas-grid {
-        grid-template-columns: 1fr; /* 1 cột trên điện thoại */
-        gap: 15px;
-    }
-
-    .followed-manga-card {
-        padding: 10px;
-    }
-
-    .followed-manga-thumbnail {
-        width: 60px;
-        height: 90px;
-        margin-right: 10px;
-    }
-
-    .followed-manga-title {
-        font-size: 1rem;
-    }
-
-    .followed-manga-info p {
-        font-size: 0.85rem;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .followed-mangas-grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 2 cột trên iPad nếu đủ chỗ */
-    }
-}
-
-@media (min-width: 1025px) {
-    .followed-mangas-grid {
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* 3-4 cột trên desktop */
-    }
-}
-
-.followed-manga-item {
-    background: var(--apple-surface);
-    backdrop-filter: var(--apple-blur);
-    -webkit-backdrop-filter: var(--apple-blur);
-    border-radius: 13px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-}
-
-.followed-manga-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}
-
-.followed-manga-item a {
-    color: var(--apple-primary);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.followed-manga-item a:hover {
-    color: #5cdbff;
-}
-
-/* Unfollow button styling */
-.unfollow-btn {
-    background: transparent;
-    border: none;
-    color: #ff4d4f; /* Màu đỏ nhạt cho nút Bỏ theo dõi */
-    transition: all 0.2s ease;
-}
-
-.unfollow-btn:hover {
-    color: #ff7875;
-    transform: scale(1.1);
-}
-
-.followed-manga-item img {
-    transition: all 0.3s ease;
-}
-
-.followed-manga-item:hover img {
-    transform: scale(1.05);
-}
-
-.followed-manga-item .small {
-    line-height: 1.2;
-}
-
-/* Chế độ trang đôi */
+/* Double page mode */
 .double-page-container {
     display: flex;
     justify-content: center;
@@ -829,24 +562,23 @@ body {
 
 .double-page-wrapper {
     display: flex;
-    flex-direction: row; /* Thay đổi từ row-reverse sang row (Trái sang Phải) */
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     width: 100%;
     max-width: 1200px;
     gap: 0;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
     background: #000;
     min-height: 60vh;
 }
 
 .double-page-wrapper img {
-    width: 50%; /* Bắt buộc mỗi ảnh chiếm nửa khung */
+    width: 50%;
     height: auto;
     object-fit: contain;
 }
 
-/* Nút chuyển trang vô hình phủ lên 2 bên ảnh */
 .page-nav-btn {
     position: absolute;
     top: 0;
@@ -862,7 +594,7 @@ body {
     align-items: center;
     color: white;
     font-size: 3rem;
-    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
 }
 
 .page-nav-btn:hover {
@@ -870,10 +602,19 @@ body {
     background: rgba(0, 0, 0, 0.2);
 }
 
-.page-nav-left { left: 0; justify-content: flex-start; padding-left: 5%; }
-.page-nav-right { right: 0; justify-content: flex-end; padding-right: 5%; }
+.page-nav-left {
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 5%;
+}
 
-/* Layout chế độ trang đôi: chrome trái, 2 trang khít chiều cao, không cuộn dọc */
+.page-nav-right {
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 5%;
+}
+
+/* Double reading layout */
 html:has(body.double-reading-mode) {
     height: 100%;
     overflow: hidden;
@@ -1114,4 +855,102 @@ body.double-reading-mode .page-nav-btn:disabled {
     cursor: default;
     pointer-events: none;
     opacity: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        border-radius: 0;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        gap: 8px;
+        padding: 8px 16px;
+    }
+
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) button {
+        flex: 0 0 auto;
+        border-radius: 15px;
+        padding: 4px 12px;
+    }
+
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) .dropdown {
+        flex: 1;
+        max-width: 140px;
+    }
+
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) ~ #manga-content {
+        padding-bottom: 60px;
+    }
+
+    #search-form {
+        margin-right: 0 !important;
+        margin-top: 10px;
+    }
+
+    .followed-mangas-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .followed-manga-card {
+        padding: 10px;
+    }
+
+    .followed-manga-thumbnail {
+        width: 60px;
+        height: 90px;
+        margin-right: 10px;
+    }
+
+    .followed-manga-title {
+        font-size: 1rem;
+    }
+
+    .followed-manga-info p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 769px) {
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) {
+        right: 20px;
+        bottom: 20px;
+        flex-direction: column;
+        gap: 5px;
+        width: auto;
+        border-radius: 20px;
+    }
+
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) button {
+        width: 100%;
+        border-radius: 15px;
+        margin: 2px 0;
+    }
+
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) .dropdown {
+        width: 100%;
+    }
+
+    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) #toggle-nav-position {
+        align-self: center;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .followed-mangas-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+@media (min-width: 1025px) {
+    .followed-mangas-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
 }
