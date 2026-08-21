@@ -175,8 +175,10 @@ function setupEventListeners() {
         }
     });
 
-    elements.toggleNavPositionBtn.addEventListener("click", (e) => {
+    elements.toggleNavPositionBtn.addEventListener("click", function (e) {
         e.preventDefault();
+        // Không cho toggle khi đang ở chế độ trang đôi
+        if (document.body.classList.contains("double-reading-mode")) return;
         toggleNavPosition();
     });
 
@@ -250,9 +252,18 @@ function restoreReadingMode() {
 }
 
 function applyDoubleReadingLayout(enabled) {
-    const mode = elements.readingModeSelect ? elements.readingModeSelect.value : "scroll";
-    const isEnabled = enabled !== undefined ? enabled : mode === "double" && !!currentSlug;
+    const mode = elements.readingModeSelect
+        ? elements.readingModeSelect.value
+        : "scroll";
+    const isEnabled =
+        enabled !== undefined ? enabled : mode === "double" && !!currentSlug;
+
     document.body.classList.toggle("double-reading-mode", isEnabled);
+
+    // Ẩn hoàn toàn nút toggle khi ở chế độ trang đôi
+    if (elements.toggleNavPositionBtn) {
+        elements.toggleNavPositionBtn.style.display = isEnabled ? "none" : "";
+    }
 }
 
 async function loadMangaContent(slug) {

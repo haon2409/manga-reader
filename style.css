@@ -122,11 +122,11 @@ body {
     font-size: 0.75rem;
 }
 
-/* Vertical nav */
+/* Vertical nav - chuyển sang bên trái */
 #chapter-navigation.nav-vertical {
-    right: 0;
+    left: 0;
+    right: auto;
     bottom: 0;
-    left: auto;
     top: auto;
     flex-direction: column;
     gap: 5px;
@@ -933,7 +933,8 @@ body.double-reading-mode .page-nav-btn:disabled {
 
 @media (min-width: 769px) {
     #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) {
-        right: 20px;
+        left: 20px;
+        right: auto;
         bottom: 20px;
         flex-direction: column;
         gap: 5px;
