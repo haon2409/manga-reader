@@ -720,6 +720,7 @@ body.double-reading-mode .follow-btn {
     right: auto;
 }
 
+/* Ép navigation luôn sidebar, bỏ mọi khoảng trống đáy */
 body.double-reading-mode #chapter-navigation,
 body.double-reading-mode #chapter-navigation.nav-vertical,
 body.double-reading-mode #chapter-navigation.nav-horizontal {
@@ -736,10 +737,11 @@ body.double-reading-mode #chapter-navigation.nav-horizontal {
     height: auto !important;
     max-width: calc(16.5rem - 1rem);
     margin: 0.5rem 0.5rem 0.75rem;
-    flex-direction: column;
+    flex-direction: column !important;
     justify-content: flex-start;
     align-items: stretch;
     border-radius: 13px;
+    padding: 0.5rem !important;
 }
 
 body.double-reading-mode #chapter-navigation.nav-horizontal button {
@@ -756,6 +758,14 @@ body.double-reading-mode #chapter-navigation.nav-horizontal .warmth-control .war
     display: block;
     width: 100px;
     opacity: 1;
+}
+
+/* Xóa hoàn toàn padding đáy gây khoảng trống */
+body.double-reading-mode #manga-content,
+body.double-reading-mode #chapter-navigation.nav-horizontal ~ #manga-content,
+body.double-reading-mode #chapter-navigation.nav-vertical ~ #manga-content {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 body.double-reading-mode #loading,
@@ -782,6 +792,7 @@ body.double-reading-mode #manga-content {
     transition: none;
 }
 
+/* Đảm bảo 2 trang lấp đầy chiều cao, không gap */
 body.double-reading-mode .double-page-container {
     display: flex;
     flex-direction: row;
@@ -789,6 +800,7 @@ body.double-reading-mode .double-page-container {
     width: 100%;
     min-height: 0;
     margin: 0;
+    padding: 0;
     justify-content: stretch;
     align-items: stretch;
 }
@@ -804,6 +816,7 @@ body.double-reading-mode .double-page-wrapper {
     background: #000;
     box-shadow: none;
     z-index: 1;
+    margin: 0;
 }
 
 body.double-reading-mode .double-page-wrapper img.manga-page {
