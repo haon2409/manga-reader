@@ -9,6 +9,7 @@ let isNewest = false;
 let followedMangas = [];
 let currentChapterPages = [];
 let currentDoublePageIndex = 0;
+let openDoublePageAtEnd = false;
 
 // DOM elements
 const elements = {
@@ -527,7 +528,15 @@ async function fetchChapterContent(slug, chapterId) {
     }));
 
     currentChapterPages = pages;
-    currentDoublePageIndex = 0;
+    const readingMode = elements.readingModeSelect
+        ? elements.readingModeSelect.value
+        : "scroll";
+    if (openDoublePageAtEnd && readingMode === "double") {
+        currentDoublePageIndex = Math.max(0, pages.length - 2);
+    } else {
+        currentDoublePageIndex = 0;
+    }
+    openDoublePageAtEnd = false;
     renderPages(); // Hàm mới xử lý hiển thị theo chế độ
 
     if (currentChapterIndex !== -1 && chapters[currentChapterIndex]) {
@@ -639,22 +648,8 @@ function displayDoublePages() {
             renderPages();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (currentChapterIndex > 0) {
-            // Cần lưu lại index chương cũ để trigger sự kiện đổi chương
-            // Sau khi đổi chương, ta cần set trang cuối cho chương đó
-            const previousChapter = chapters[currentChapterIndex - 1];
-            
-            // Gọi hàm đổi chương của bạn (giả sử là loadChapter hoặc tương tự)
-            // Lưu ý: Bạn cần đảm bảo sau khi load xong chương mới, 
-            // nó sẽ set currentDoublePageIndex = trang cuối.
-            elements.prevChapterBtn.click(); 
-            
-            // MẸO: Đợi một chút cho dữ liệu chương mới load xong rồi mới set trang
-            setTimeout(() => {
-                currentDoublePageIndex = currentChapterPages.length % 2 === 0 
-                    ? currentChapterPages.length - 2 
-                    : currentChapterPages.length - 1;
-                renderPages();
-            }, 500); 
+            openDoublePageAtEnd = true;
+            elements.prevChapterBtn.click();
         }
     };
 
