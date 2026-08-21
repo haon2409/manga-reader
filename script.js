@@ -7,6 +7,8 @@ let isVerticalNav = true;
 let readChapters = {};
 let isNewest = false;
 let followedMangas = [];
+let currentChapterPages = [];
+let currentDoublePageIndex = 0;
 
 // DOM elements
 const elements = {
@@ -26,6 +28,7 @@ const elements = {
     errorText: document.getElementById("error-text"),
     chapterDropdown: document.getElementById("chapterDropdown"),
     chapterCount: document.getElementById("chapter-count"),
+    readingModeSelect: document.getElementById("reading-mode-select"),
 };
 
 // Helper functions
@@ -208,16 +211,25 @@ function setupEventListeners() {
 
     // Keyboard navigation
     document.addEventListener("keydown", function (e) {
-        if (
-            (e.key === "ArrowLeft" || e.key.toLowerCase() === "p") &&
-            !elements.prevChapterBtn.disabled
-        ) {
+        const mode = elements.readingModeSelect?.value || "scroll";
+        
+        // Xử lý riêng cho chế độ trang đôi: Lật trang bằng phím mũi tên
+        if (mode === "double") {
+            if (e.key === "ArrowLeft") {
+                const navLeft = document.querySelector('.page-nav-left');
+                if (navLeft) navLeft.click();
+            }
+            if (e.key === "ArrowRight") {
+                const navRight = document.querySelector('.page-nav-right');
+                if (navRight) navRight.click();
+            }
+        }
+        
+        // Giữ lại phím P (Prev) và N (Next) để chuyển chương, vô hiệu hóa phím mũi tên cho chức năng này
+        if (e.key.toLowerCase() === "p" && !elements.prevChapterBtn.disabled) {
             elements.prevChapterBtn.click();
         }
-        if (
-            (e.key === "ArrowRight" || e.key.toLowerCase() === "n") &&
-            !elements.nextChapterBtn.disabled
-        ) {
+        if (e.key.toLowerCase() === "n" && !elements.nextChapterBtn.disabled) {
             elements.nextChapterBtn.click();
         }
     });
@@ -261,6 +273,16 @@ function setupEventListeners() {
             warmthControl.classList.remove("show");
         }
     });
+
+    // Khôi phục chế độ đọc đã lưu
+    if(elements.readingModeSelect) {
+        elements.readingModeSelect.value = localStorage.getItem("readingMode") || "scroll";
+        elements.readingModeSelect.addEventListener("change", function(e) {
+            localStorage.setItem("readingMode", e.target.value);
+            currentDoublePageIndex = 0; // Đưa về trang đầu khi đổi chế độ
+            renderPages();
+        });
+    }
 }
 
 async function loadMangaContent(slug) {
@@ -504,7 +526,9 @@ async function fetchChapterContent(slug, chapterId) {
         filename: image.image_file || "",
     }));
 
-    displayMangaPages(pages);
+    currentChapterPages = pages;
+    currentDoublePageIndex = 0;
+    renderPages(); // Hàm mới xử lý hiển thị theo chế độ
 
     if (currentChapterIndex !== -1 && chapters[currentChapterIndex]) {
         const chapter = chapters[currentChapterIndex];
@@ -555,6 +579,113 @@ function displayMangaPages(pages) {
     } else {
         showEmptyState("No pages found for this chapter");
     }
+}
+
+function renderPages() {
+    const mode = elements.readingModeSelect ? elements.readingModeSelect.value : "scroll";
+    if (mode === "scroll") {
+        displayMangaPages(currentChapterPages);
+    } else {
+        displayDoublePages();
+    }
+    applyWarmthFromStorage(); // Giữ nguyên filter màu đã chỉnh
+}
+
+function displayDoublePages() {
+    if (!elements.mangaContent) return;
+    
+    // Bắt buộc khung chứa phải hiển thị
+    elements.mangaContent.style.display = "block";
+    elements.mangaContent.innerHTML = "";
+
+    if (!currentChapterPages || currentChapterPages.length === 0) {
+        elements.mangaContent.innerHTML = "<p class='text-center my-5'>Không có dữ liệu trang truyện.</p>";
+        return;
+    }
+
+    // Đảm bảo index luôn là số nguyên, tránh lỗi cộng dồn chuỗi
+    currentDoublePageIndex = parseInt(currentDoublePageIndex, 10);
+
+    const container = document.createElement("div");
+    container.className = "double-page-container";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "double-page-wrapper";
+
+    // Render trang trái (Trang thứ nhất trong cặp)
+    if (currentChapterPages[currentDoublePageIndex + 1]) {
+        const img2 = document.createElement("img");
+        img2.src = currentChapterPages[currentDoublePageIndex + 1].url;
+        img2.className = "manga-page";
+        wrapper.appendChild(img2);
+    }
+
+    // Render trang phải (Trang thứ hai trong cặp)
+    if (currentChapterPages[currentDoublePageIndex]) {
+        const img1 = document.createElement("img");
+        img1.src = currentChapterPages[currentDoublePageIndex].url;
+        img1.className = "manga-page";
+        wrapper.appendChild(img1);
+    }
+
+    // Nút lùi trang
+    const btnPrev = document.createElement("button");
+    btnPrev.className = "page-nav-btn page-nav-left";
+    btnPrev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    btnPrev.onclick = (e) => {
+        e.preventDefault();
+        if (currentDoublePageIndex >= 2) {
+            currentDoublePageIndex -= 2;
+            renderPages();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (currentChapterIndex > 0) {
+            // Cần lưu lại index chương cũ để trigger sự kiện đổi chương
+            // Sau khi đổi chương, ta cần set trang cuối cho chương đó
+            const previousChapter = chapters[currentChapterIndex - 1];
+            
+            // Gọi hàm đổi chương của bạn (giả sử là loadChapter hoặc tương tự)
+            // Lưu ý: Bạn cần đảm bảo sau khi load xong chương mới, 
+            // nó sẽ set currentDoublePageIndex = trang cuối.
+            elements.prevChapterBtn.click(); 
+            
+            // MẸO: Đợi một chút cho dữ liệu chương mới load xong rồi mới set trang
+            setTimeout(() => {
+                currentDoublePageIndex = currentChapterPages.length % 2 === 0 
+                    ? currentChapterPages.length - 2 
+                    : currentChapterPages.length - 1;
+                renderPages();
+            }, 500); 
+        }
+    };
+
+    // Nút tiến trang (Giờ nằm bên phải màn hình)
+    const btnNext = document.createElement("button");
+    btnNext.className = "page-nav-btn page-nav-right"; // Đổi class để CSS bắt đúng vị trí phải
+    btnNext.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    btnNext.onclick = (e) => {
+        e.preventDefault();
+        if (currentDoublePageIndex + 2 < currentChapterPages.length) {
+            currentDoublePageIndex += 2;
+            renderPages();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (currentChapterIndex < chapters.length - 1) {
+            elements.nextChapterBtn.click();
+        }
+    };
+
+    // Ẩn nút nếu không còn đường lùi/tiến
+    if (currentDoublePageIndex === 0 && currentChapterIndex <= 0) {
+        btnPrev.style.display = 'none';
+    }
+    if (currentDoublePageIndex + 2 >= currentChapterPages.length && currentChapterIndex >= chapters.length - 1) {
+        btnNext.style.display = 'none';
+    }
+
+    container.appendChild(btnPrev);
+    container.appendChild(wrapper);
+    container.appendChild(btnNext);
+    
+    elements.mangaContent.appendChild(container);
 }
 
 /**

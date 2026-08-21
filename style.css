@@ -815,3 +815,60 @@ body {
 .followed-manga-item .small {
     line-height: 1.2;
 }
+
+/* Chế độ trang đôi */
+.double-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    position: relative;
+    max-width: 100%;
+    margin: 0 auto;
+    min-height: 80vh;
+}
+
+.double-page-wrapper {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    gap: 0;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    background: #000;
+    min-height: 60vh; /* Chống xẹp khung khi ảnh chưa tải xong */
+}
+
+.double-page-wrapper img {
+    width: 50%; /* Bắt buộc mỗi ảnh chiếm nửa khung */
+    height: auto;
+    object-fit: contain;
+}
+
+/* Nút chuyển trang vô hình phủ lên 2 bên ảnh */
+.page-nav-btn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 3rem;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+.page-nav-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.page-nav-left { left: 0; justify-content: flex-start; padding-left: 5%; }
+.page-nav-right { right: 0; justify-content: flex-end; padding-right: 5%; }
