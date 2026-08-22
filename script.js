@@ -3,7 +3,6 @@ let currentSlug = "";
 let currentChapterId = "";
 let chapters = [];
 let currentChapterIndex = -1;
-let isVerticalNav = true;
 let readChapters = {};
 let isNewest = false;
 let followedMangas = [];
@@ -20,7 +19,6 @@ const el = {
     prevChapterBtn: document.getElementById("prev-chapter"),
     nextChapterBtn: document.getElementById("next-chapter"),
     chapterList: document.getElementById("chapter-list"),
-    toggleNavPositionBtn: document.getElementById("toggle-nav-position"),
     chapterNavigation: document.getElementById("chapter-navigation"),
     warmthSlider: document.getElementById("warmth-slider"),
     followMangaBtn: document.getElementById("follow-manga-btn"),
@@ -128,11 +126,6 @@ function setupEventListeners() {
         if (currentChapterIndex < chapters.length - 1 && currentChapterIndex !== -1)
             navigateToChapter(chapters[currentChapterIndex + 1].id);
     });
-    el.toggleNavPositionBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (!document.body.classList.contains("double-reading-mode")) toggleNavPosition();
-    });
-    loadNavPositionFromStorage();
 
     document.addEventListener("keydown", (e) => {
         const mode = helpers.getReadingMode();
@@ -160,17 +153,6 @@ function setupEventListeners() {
         }
     });
 
-    const warmthToggle = document.querySelector(".warmth-toggle");
-    const warmthControl = document.querySelector(".warmth-control");
-    warmthToggle?.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (!isVerticalNav) warmthControl?.classList.toggle("show");
-    });
-    document.addEventListener("click", (e) => {
-        if (!isVerticalNav && warmthControl && !warmthControl.contains(e.target))
-            warmthControl.classList.remove("show");
-    });
-
     document.querySelectorAll(".segmented-control .segment").forEach((btn) => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".segmented-control .segment").forEach((b) => b.classList.remove("active"));
@@ -194,7 +176,10 @@ function restoreReadingMode() {
 function applyDoubleReadingLayout(enabled) {
     const isEnabled = enabled !== undefined ? enabled : helpers.getReadingMode() === "double" && !!currentSlug;
     document.body.classList.toggle("double-reading-mode", isEnabled);
-    if (el.toggleNavPositionBtn) el.toggleNavPositionBtn.style.display = isEnabled ? "none" : "";
+}
+
+function setSidebarLayout(active) {
+    document.body.classList.toggle("sidebar-layout", !!active);
 }
 
 // ===== Core Load =====
@@ -204,6 +189,7 @@ async function loadMangaContent(slug) {
         el.mangaContent.style.display = "none";
         helpers.hideError();
         el.chapterNavigation.style.display = "flex";
+        setSidebarLayout(true);
         applyDoubleReadingLayout();
 
         currentSlug = slug;
@@ -490,7 +476,6 @@ function populateChapterDropdown() {
         el.chapterList.appendChild(li);
     });
 
-    updateDropdownPosition();
     el.chapterDropdown.addEventListener("shown.bs.dropdown", () => {
         el.chapterList.querySelector(".dropdown-item.active")?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, { once: true });
@@ -526,43 +511,6 @@ function updateNavigation() {
         ? `Chapter ${chapters[currentChapterIndex].number} - ${el.mangaTitle.textContent}`
         : "Manga Reader";
     if (el.chapterCount) el.chapterCount.textContent = chapters.length || "No chapters";
-}
-
-// ===== Nav Position =====
-function toggleNavPosition() {
-    isVerticalNav = !isVerticalNav;
-    applyNavPositionStyles();
-    localStorage.setItem("isVerticalNav", isVerticalNav);
-    updateNavPositionIcon();
-    updateDropdownPosition();
-    document.querySelector(".warmth-control")?.classList.remove("show");
-}
-
-function loadNavPositionFromStorage() {
-    const saved = localStorage.getItem("isVerticalNav");
-    if (saved !== null) isVerticalNav = saved === "true";
-    applyNavPositionStyles();
-    updateNavPositionIcon();
-    updateDropdownPosition();
-}
-
-function applyNavPositionStyles() {
-    el.chapterNavigation.classList.remove("nav-vertical", "nav-horizontal");
-    el.chapterNavigation.classList.add(isVerticalNav ? "nav-vertical" : "nav-horizontal");
-}
-
-function updateNavPositionIcon() {
-    el.toggleNavPositionBtn.title = isVerticalNav ? "Switch to horizontal" : "Switch to vertical";
-    el.toggleNavPositionBtn.innerHTML = isVerticalNav
-        ? '<i class="fas fa-grip-horizontal"></i>'
-        : '<i class="fas fa-grip-vertical"></i>';
-}
-
-function updateDropdownPosition() {
-    const menu = document.querySelector(".dropdown-menu");
-    if (!menu) return;
-    menu.classList.remove("dropdown-menu-end", "dropdown-menu-start", "dropdown-menu-up");
-    menu.classList.add(isVerticalNav ? "dropdown-menu-start" : "dropdown-menu-up");
 }
 
 // ===== Storage =====
@@ -603,6 +551,7 @@ function saveFollowedMangas() {
 // ===== Empty / Search =====
 async function showEmptyState(message = "No manga content to display") {
     helpers.showLoading(false);
+    setSidebarLayout(false);
     applyDoubleReadingLayout(false);
     el.mangaContent.style.display = "block";
     el.chapterNavigation.style.display = "none";
@@ -662,6 +611,7 @@ async function handleSearchResults(keyword) {
         return;
     }
     el.chapterNavigation.style.display = "none";
+    setSidebarLayout(false);
     applyDoubleReadingLayout(false);
     el.mangaTitle.textContent = `Kết quả tìm kiếm: "${keyword}"`;
     el.followMangaBtn.style.display = "none";

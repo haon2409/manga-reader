@@ -90,81 +90,6 @@ body {
 
 #chapter-count { text-align: center; margin-top: 0 !important; }
 
-#toggle-nav-position {
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-}
-
-/* Vertical */
-#chapter-navigation.nav-vertical {
-    left: 0;
-    right: auto;
-    bottom: 0;
-    top: auto;
-    flex-direction: column;
-    gap: 5px;
-    width: auto;
-    border-radius: 20px;
-}
-#chapter-navigation.nav-vertical button {
-    width: 100%;
-    border-radius: 15px;
-    margin: 2px 0;
-}
-#chapter-navigation.nav-vertical #toggle-nav-position { align-self: center; }
-
-/* Horizontal */
-#chapter-navigation.nav-horizontal {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: auto;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    border-radius: 0;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    gap: 8px;
-    padding: 8px 16px;
-    height: 60px;
-}
-#chapter-navigation.nav-horizontal button {
-    flex: 0 0 auto;
-    border-radius: 15px;
-    min-width: 70px;
-    padding: 4px;
-}
-#chapter-navigation.nav-horizontal .dropdown {
-    flex: 1;
-    max-width: 140px;
-}
-#chapter-navigation.nav-horizontal ~ #manga-content { padding-bottom: 60px; }
-
-#chapter-navigation.nav-horizontal .warmth-control .warmth-slider {
-    display: none;
-    width: 0;
-    opacity: 0;
-    transition: width 0.3s ease, opacity 0.2s ease;
-}
-#chapter-navigation.nav-horizontal .warmth-control.show .warmth-slider {
-    display: block;
-    width: 100px;
-    opacity: 1;
-}
-#chapter-navigation.nav-vertical .warmth-control .warmth-slider {
-    display: block;
-    width: 100px;
-    opacity: 1;
-}
-
 /* Dropdown */
 .dropdown-menu {
     background: var(--apple-surface);
@@ -184,12 +109,6 @@ body {
     color: #fff;
 }
 #chapter-list { max-height: 300px; overflow-y: auto; }
-.dropdown-menu-up {
-    top: auto !important;
-    bottom: 100% !important;
-    margin-top: 0 !important;
-    margin-bottom: 0.125rem !important;
-}
 #chapter-list .active {
     background-color: var(--bs-dark);
     color: var(--bs-info);
@@ -404,11 +323,12 @@ body {
 .page-nav-right { right: 0; justify-content: flex-end; padding-right: 5%; }
 
 /* Double Reading Layout */
-html:has(body.double-reading-mode) {
+/* ===== Sidebar layout (chung cho Cuộn & Trang đôi) ===== */
+html:has(body.sidebar-layout) {
     height: 100%;
     overflow: hidden;
 }
-body.double-reading-mode {
+body.sidebar-layout {
     display: grid;
     grid-template-columns: 16.5rem minmax(0, 1fr);
     grid-template-rows: 100dvh;
@@ -417,7 +337,7 @@ body.double-reading-mode {
     overflow: hidden;
     overscroll-behavior: none;
 }
-body.double-reading-mode > .navbar {
+body.sidebar-layout > .navbar {
     grid-column: 1;
     grid-row: 1;
     align-self: start;
@@ -428,7 +348,7 @@ body.double-reading-mode > .navbar {
     background: transparent !important;
     box-shadow: none;
 }
-body.double-reading-mode > .navbar .container {
+body.sidebar-layout > .navbar .container {
     flex-direction: column;
     align-items: stretch;
     max-width: none;
@@ -436,14 +356,14 @@ body.double-reading-mode > .navbar .container {
     padding: 0;
     gap: 0.5rem;
 }
-body.double-reading-mode .navbar-brand { font-size: 1.05rem; margin-right: 0; }
-body.double-reading-mode .navbar-toggler { display: none; }
-body.double-reading-mode .navbar-collapse { display: flex !important; width: 100%; }
-body.double-reading-mode #search-form { width: 100%; margin: 0 !important; }
-body.double-reading-mode #search-form .form-control { min-width: 0; padding: 0.4rem 0.6rem; }
-body.double-reading-mode #search-form .btn { padding: 0.4rem 0.65rem; }
+body.sidebar-layout .navbar-brand { font-size: 1.05rem; margin-right: 0; }
+body.sidebar-layout .navbar-toggler { display: none; }
+body.sidebar-layout .navbar-collapse { display: flex !important; width: 100%; }
+body.sidebar-layout #search-form { width: 100%; margin: 0 !important; }
+body.sidebar-layout #search-form .form-control { min-width: 0; padding: 0.4rem 0.6rem; }
+body.sidebar-layout #search-form .btn { padding: 0.4rem 0.65rem; }
 
-body.double-reading-mode > .container.my-4 {
+body.sidebar-layout > .container.my-4 {
     grid-column: 1 / -1;
     grid-row: 1;
     display: grid;
@@ -456,7 +376,7 @@ body.double-reading-mode > .container.my-4 {
     padding: 0;
     overflow: hidden;
 }
-body.double-reading-mode #manga-info {
+body.sidebar-layout #manga-info {
     grid-column: 1;
     grid-row: 1;
     z-index: 5;
@@ -469,18 +389,16 @@ body.double-reading-mode #manga-info {
     margin: 0 !important;
     padding: 6.75rem 0.85rem 0.5rem;
 }
-body.double-reading-mode #manga-title {
+body.sidebar-layout #manga-title {
     font-size: 1.05rem;
     line-height: 1.35;
     margin: 0 !important;
     word-break: break-word;
 }
-body.double-reading-mode #follow-manga-btn,
-body.double-reading-mode .follow-btn { position: static; right: auto; }
+body.sidebar-layout #follow-manga-btn,
+body.sidebar-layout .follow-btn { position: static; right: auto; }
 
-body.double-reading-mode #chapter-navigation,
-body.double-reading-mode #chapter-navigation.nav-vertical,
-body.double-reading-mode #chapter-navigation.nav-horizontal {
+body.sidebar-layout #chapter-navigation {
     position: relative !important;
     inset: auto !important;
     grid-column: 1;
@@ -496,28 +414,44 @@ body.double-reading-mode #chapter-navigation.nav-horizontal {
     border-radius: 13px;
     padding: 0.5rem !important;
 }
-body.double-reading-mode #chapter-navigation.nav-horizontal button { width: 100%; min-width: 0; }
-body.double-reading-mode #chapter-navigation.nav-horizontal .dropdown { max-width: none; width: 100%; }
-body.double-reading-mode #chapter-navigation.nav-horizontal .warmth-control .warmth-slider {
+body.sidebar-layout #chapter-navigation button { width: 100%; min-width: 0; }
+body.sidebar-layout #chapter-navigation .dropdown { max-width: none; width: 100%; }
+body.sidebar-layout #chapter-navigation .warmth-control .warmth-slider {
     display: block;
     width: 100px;
     opacity: 1;
 }
 
-body.double-reading-mode #manga-content,
-body.double-reading-mode #chapter-navigation.nav-horizontal ~ #manga-content,
-body.double-reading-mode #chapter-navigation.nav-vertical ~ #manga-content {
+body.sidebar-layout #manga-content {
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
 }
-body.double-reading-mode #loading,
-body.double-reading-mode #error-message {
+body.sidebar-layout #loading,
+body.sidebar-layout #error-message {
     grid-column: 2;
     grid-row: 1 / -1;
     align-self: center;
     justify-self: center;
     margin: 0;
 }
+
+/* Cuộn mode trong sidebar: cho phép scroll content */
+body.sidebar-layout:not(.double-reading-mode) #manga-content {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    height: 100dvh;
+    max-height: 100dvh;
+    width: 100%;
+    margin: 0;
+    padding: 1rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: block !important;
+    align-items: initial;
+    justify-content: initial;
+}
+
+/* Trang đôi: giữ nguyên như cũ */
 body.double-reading-mode #manga-content {
     grid-column: 2;
     grid-row: 1 / -1;
@@ -621,7 +555,6 @@ body.double-reading-mode .page-nav-btn:disabled {
     transition: color 0.2s ease;
 }
 .warmth-toggle:hover { color: var(--apple-primary); }
-#chapter-navigation.nav-horizontal .warmth-control.show { gap: 8px; }
 
 .warmth-slider {
     -webkit-appearance: none;
@@ -698,72 +631,47 @@ body.double-reading-mode .page-nav-btn:disabled {
     background: rgba(255, 255, 255, 0.1);
 }
 
-body.double-reading-mode .segmented-control {
+body.sidebar-layout .segmented-control {
     flex-direction: column;
     width: 100%;
     gap: 3px;
 }
-body.double-reading-mode .segmented-control .segment {
+body.sidebar-layout .segmented-control .segment {
     width: 100%;
     justify-content: flex-start;
     padding: 7px 10px;
 }
-body.double-reading-mode .warmth-control {
+body.sidebar-layout .warmth-control {
     display: flex;
     align-items: center;
-    justify-content: center; /* Đổi từ flex-start sang center */
-    gap: 12px; /* Tăng khoảng cách giữa icon và thanh trượt cho cân đối */
+    justify-content: center;
+    gap: 12px;
     width: 100%;
-    margin: 8px 0; /* Tăng lề trên dưới để không bị sát các nút khác */
+    margin: 8px 0;
 }
-body.double-reading-mode .warmth-control .warmth-slider {
+body.sidebar-layout .warmth-control .warmth-slider {
     display: block !important;
     width: 100% !important;
-    max-width: 120px; /* Tăng nhẹ chiều dài thanh trượt */
+    max-width: 120px;
     opacity: 1 !important;
-    flex: 0 1 auto; /* Đổi từ flex: 1 sang auto để justify-content: center hoạt động chính xác */
+    flex: 0 1 auto;
 }
-body.double-reading-mode .warmth-toggle {
+body.sidebar-layout .warmth-toggle {
     flex-shrink: 0; 
-    margin: 0; /* Xóa margin thừa nếu có */
+    margin: 0;
 }
 
-body.double-reading-mode #chapter-navigation {
+body.sidebar-layout #chapter-navigation {
     gap: 6px;
     padding: 8px !important;
 }
-body.double-reading-mode .reading-mode-control {
+body.sidebar-layout .reading-mode-control {
     width: 100%;
     margin: 0 !important;
 }
 
 /* Responsive */
 @media (max-width: 768px) { 
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) {
-        left: 0;
-        right: 0;
-        bottom: 0;
-        flex-direction: row;
-        justify-content: center;
-        width: 100%;
-        border-radius: 0;
-        border-top-left-radius: 15px;
-        border-top-right-radius: 15px;
-        gap: 8px;
-        padding: 8px 16px;
-    }
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) button {
-        flex: 0 0 auto;
-        border-radius: 15px;
-        padding: 4px 12px;
-    }
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) .dropdown {
-        flex: 1;
-        max-width: 140px;
-    }
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) ~ #manga-content {
-        padding-bottom: 60px;
-    }
     #search-form { margin-right: 0 !important; margin-top: 10px; }
     .followed-mangas-grid { grid-template-columns: 1fr; gap: 15px; }
     .followed-manga-card { padding: 10px; }
@@ -777,25 +685,6 @@ body.double-reading-mode .reading-mode-control {
         display: inline-block !important; 
         font-size: 0.8rem;
     }
-}
-
-@media (min-width: 769px) {
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) {
-        left: 20px;
-        right: auto;
-        bottom: 20px;
-        flex-direction: column;
-        gap: 5px;
-        width: auto;
-        border-radius: 20px;
-    }
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) button {
-        width: 100%;
-        border-radius: 15px;
-        margin: 2px 0;
-    }
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) .dropdown { width: 100%; }
-    #chapter-navigation:not(.nav-vertical):not(.nav-horizontal) #toggle-nav-position { align-self: center; }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
