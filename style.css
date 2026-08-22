@@ -336,6 +336,7 @@ body.sidebar-layout {
     max-height: 100dvh;
     overflow: hidden;
     overscroll-behavior: none;
+    transition: grid-template-columns 0.3s ease;
 }
 body.sidebar-layout > .navbar {
     grid-column: 1;
@@ -347,6 +348,7 @@ body.sidebar-layout > .navbar {
     padding: 0.75rem 0.85rem 0;
     background: transparent !important;
     box-shadow: none;
+    transition: width 0.3s ease, max-width 0.3s ease, padding 0.3s ease;
 }
 body.sidebar-layout > .navbar .container {
     flex-direction: column;
@@ -375,6 +377,83 @@ body.sidebar-layout > .container.my-4 {
     margin: 0 !important;
     padding: 0;
     overflow: hidden;
+    transition: grid-template-columns 0.3s ease;
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    display: none; /* chỉ hiện khi đang đọc (sidebar-layout) */
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+body.sidebar-layout .sidebar-toggle-btn {
+    display: flex;
+}
+.sidebar-toggle-btn:hover {
+    background: var(--apple-primary);
+    transform: scale(1.05);
+}
+.sidebar-toggle-btn i {
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+}
+
+/* ===== Collapsed sidebar ===== */
+body.sidebar-layout.sidebar-collapsed {
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+}
+body.sidebar-layout.sidebar-collapsed > .navbar {
+    width: 3.6rem;
+    max-width: 3.6rem;
+    padding: 0.75rem 0.4rem 0;
+}
+body.sidebar-layout.sidebar-collapsed > .container.my-4 {
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+}
+body.sidebar-layout.sidebar-collapsed .brand-text {
+    display: none;
+}
+body.sidebar-layout.sidebar-collapsed .navbar-brand {
+    font-size: 1.2rem;
+    margin: 0;
+}
+body.sidebar-layout.sidebar-collapsed .navbar-brand .me-2 {
+    margin-right: 0 !important;
+}
+body.sidebar-layout.sidebar-collapsed .navbar-collapse,
+body.sidebar-layout.sidebar-collapsed #search-form,
+body.sidebar-layout.sidebar-collapsed #manga-info,
+body.sidebar-layout.sidebar-collapsed #chapter-navigation {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+body.sidebar-layout.sidebar-collapsed > .navbar .container {
+    align-items: center;
+    gap: 0.35rem;
+}
+body.sidebar-layout.sidebar-collapsed .sidebar-toggle-btn {
+    width: 100%;
+}
+/* Khi không collapsed, các phần ẩn hiện mượt */
+body.sidebar-layout:not(.sidebar-collapsed) .navbar-collapse,
+body.sidebar-layout:not(.sidebar-collapsed) #search-form,
+body.sidebar-layout:not(.sidebar-collapsed) #manga-info,
+body.sidebar-layout:not(.sidebar-collapsed) #chapter-navigation {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease 0.1s, visibility 0.25s ease 0.1s;
 }
 body.sidebar-layout #manga-info {
     grid-column: 1;

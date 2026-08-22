@@ -27,6 +27,7 @@ const el = {
     errorText: document.getElementById("error-text"),
     chapterDropdown: document.getElementById("chapterDropdown"),
     chapterCount: document.getElementById("chapter-count"),
+    sidebarToggle: document.getElementById("sidebar-toggle"),
 };
 
 // ===== Helpers =====
@@ -61,9 +62,22 @@ document.addEventListener("DOMContentLoaded", () => {
     loadFollowedMangas();
     loadReadHistory();
     restoreReadingMode();
+    restoreSidebarState();
     parseUrlParameters();
     setupEventListeners();
     setupWarmthSlider();
+
+    window.addEventListener("popstate", (event) => {
+        if (event.state && event.state.slug) {
+            // Nếu trong lịch sử có lưu trạng thái truyện
+            currentSlug = event.state.slug;
+            currentChapterId = event.state.chapterId;
+            loadMangaContent(currentSlug);
+        } else {
+            // Nếu không có, mặc định parse lại theo URL
+            parseUrlParameters();
+        }
+    });
 
     el.searchForm?.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -127,6 +141,11 @@ function setupEventListeners() {
             navigateToChapter(chapters[currentChapterIndex + 1].id);
     });
 
+    el.sidebarToggle?.addEventListener("click", (e) => {
+        e.preventDefault();
+        toggleSidebar();
+    });
+
     document.addEventListener("keydown", (e) => {
         const mode = helpers.getReadingMode();
         if (mode === "double") {
@@ -180,6 +199,31 @@ function applyDoubleReadingLayout(enabled) {
 
 function setSidebarLayout(active) {
     document.body.classList.toggle("sidebar-layout", !!active);
+    // Khi rời trang đọc → bỏ collapsed
+    if (!active) document.body.classList.remove("sidebar-collapsed");
+    updateSidebarToggleIcon();
+}
+
+function toggleSidebar() {
+    if (!document.body.classList.contains("sidebar-layout")) return;
+    const collapsed = document.body.classList.toggle("sidebar-collapsed");
+    localStorage.setItem("sidebarCollapsed", collapsed ? "true" : "false");
+    updateSidebarToggleIcon();
+}
+
+function restoreSidebarState() {
+    const saved = localStorage.getItem("sidebarCollapsed") === "true";
+    if (saved) document.body.classList.add("sidebar-collapsed");
+    updateSidebarToggleIcon();
+}
+
+function updateSidebarToggleIcon() {
+    if (!el.sidebarToggle) return;
+    const collapsed = document.body.classList.contains("sidebar-collapsed");
+    el.sidebarToggle.innerHTML = collapsed
+        ? '<i class="fas fa-angles-right"></i>'
+        : '<i class="fas fa-angles-left"></i>';
+    el.sidebarToggle.title = collapsed ? "Hiện sidebar" : "Ẩn sidebar";
 }
 
 // ===== Core Load =====
@@ -606,10 +650,15 @@ async function showEmptyState(message = "No manga content to display") {
 }
 
 async function handleSearchResults(keyword) {
-    if (!keyword) {
-        el.mangaContent.innerHTML = '<div class="alert alert-info">Vui lòng nhập từ khóa hợp lệ.</div>';
-        return;
+    if (!keyword) return;
+
+    // Lưu lại trạng thái trang đọc hiện tại trước khi chuyển sang trang tìm kiếm
+    if (currentSlug) {
+        const state = { slug: currentSlug, chapterId: currentChapterId };
+        const url = new URL(window.location.href);
+        window.history.pushState(state, "", url);
     }
+
     el.chapterNavigation.style.display = "none";
     setSidebarLayout(false);
     applyDoubleReadingLayout(false);
